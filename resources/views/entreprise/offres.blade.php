@@ -26,10 +26,10 @@
             <h1>Toutes les offres</h1>
             <p style="color:var(--muted);font-size:.9rem;">{{ $offres->total() }} offre(s)</p>
         </div>
-        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <a href="{{ route('entreprise.dashboard') }}" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Dashboard</a>
     </div>
 
-    <form method="GET" action="{{ route('admin.offres') }}" class="filter-bar">
+    <form method="GET" action="{{ route('entreprise.offres') }}" class="filter-bar">
         <input type="text" name="search" value="{{ request('search') }}" placeholder="Rechercher un titre...">
         <select name="statut">
             <option value="">Tous les statuts</option>
@@ -68,11 +68,15 @@
                         </td>
                         <td>{{ $offre->date_publication->format('d/m/Y') }}</td>
                         <td>
-                            <div style="display:flex;gap:.4rem;">
-                                <a href="{{ route('offres.show', $offre->id) }}" class="btn btn-outline btn-sm">
+                            <div style="display:flex;gap:0.4rem;">
+                                <a href="{{ route('offres.show', $offre->id) }}" class="btn btn-outline btn-sm" title="Voir">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <form method="POST" action="{{ route('admin.offres.supprimer', $offre->id) }}"
+                                <a href="{{ route('entreprise.offres.edit', $offre->id) }}" class="btn btn-secondary btn-sm" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ route('entreprise.offres.supprimer', $offre->id) }}"
+                                
                                       onsubmit="return confirm('Supprimer cette offre ?')">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>

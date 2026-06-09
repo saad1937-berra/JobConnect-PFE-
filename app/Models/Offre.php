@@ -51,6 +51,11 @@ class Offre extends Model
                     ->withTimestamps();
     }
 
+    public function competances()
+    {
+        return $this->belongsToMany(Competance::class, 'offre_competance', 'offre_id', 'competance_id');
+    }
+
     // Scopes
     public function scopeActive($query)
     {

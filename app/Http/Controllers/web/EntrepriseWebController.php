@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Offre;
 use App\Models\Categorie;
 use App\Models\Candidature;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Competance;
 
 class EntrepriseWebController extends Controller
 {
@@ -56,11 +58,8 @@ class EntrepriseWebController extends Controller
         $data = $request->only(['nom', 'secteur', 'description', 'adresse', 'site_web']);
 
         if ($request->hasFile('logo')) {
-            // Supprimer l'ancien logo si existant
             $ancien = auth()->user()->entreprise->logo;
-            if ($ancien) {
-                Storage::disk('public')->delete($ancien);
-            }
+            if ($ancien) Storage::disk('public')->delete($ancien);
             $data['logo'] = $request->file('logo')->store('logos', 'public');
         }
 
@@ -84,7 +83,8 @@ class EntrepriseWebController extends Controller
     public function creerOffre()
     {
         $categories = Categorie::all();
-        return view('entreprise.offre-form', compact('categories'));
+        $competances = Competance::all();
+        return view('entreprise.offre-form', compact('categories', 'competances'));
     }
 
     public function storeOffre(Request $request)
@@ -102,7 +102,7 @@ class EntrepriseWebController extends Controller
             'statut'          => 'nullable|in:active,brouillon,expiree',
         ]);
 
-        auth()->user()->entreprise->offres()->create([
+        $offre = auth()->user()->entreprise->offres()->create([
             ...$request->only([
                 'titre', 'description', 'categorie_id', 'contrat',
                 'duree', 'localisation', 'niveau_etude', 'salaire', 'date_expiration',
@@ -111,6 +111,10 @@ class EntrepriseWebController extends Controller
             'date_publication' => now(),
         ]);
 
+        if ($request->has('competances')) {
+            $offre->competances()->sync($request->competances);
+        }
+
         return redirect()->route('entreprise.offres')->with('success', 'Offre publiée avec succès !');
     }
 
@@ -118,8 +122,8 @@ class EntrepriseWebController extends Controller
     {
         $offre      = Offre::where('entreprise_id', auth()->user()->entreprise->id)->findOrFail($id);
         $categories = Categorie::all();
-
-        return view('entreprise.offre-form', compact('offre', 'categories'));
+        $competances = Competance::all();
+        return view('entreprise.offre-form', compact('offre', 'categories', 'competances'));
     }
 
     public function updateOffre(Request $request, $id)
@@ -138,11 +142,12 @@ class EntrepriseWebController extends Controller
         ]);
 
         $offre = Offre::where('entreprise_id', auth()->user()->entreprise->id)->findOrFail($id);
-
         $offre->update($request->only([
             'titre', 'description', 'categorie_id', 'contrat',
             'duree', 'localisation', 'niveau_etude', 'salaire', 'date_expiration', 'statut',
         ]));
+
+        $offre->competances()->sync($request->competances ?? []);
 
         return redirect()->route('entreprise.offres')->with('success', 'Offre modifiée avec succès.');
     }
@@ -150,7 +155,6 @@ class EntrepriseWebController extends Controller
     public function supprimerOffre($id)
     {
         Offre::where('entreprise_id', auth()->user()->entreprise->id)->findOrFail($id)->delete();
-
         return back()->with('success', 'Offre supprimée.');
     }
 
@@ -189,23 +193,29 @@ class EntrepriseWebController extends Controller
             'commentaire' => 'nullable|string|max:1000',
         ]);
 
-        $entreprise = auth()->user()->entreprise;
-
+        $entreprise  = auth()->user()->entreprise;
         $candidature = Candidature::whereHas('offre', fn($q) => $q->where('entreprise_id', $entreprise->id))
                                   ->findOrFail($id);
+
+        $ancienStatut = $candidature->statut;
 
         $candidature->update([
             'statut'      => $request->statut,
             'commentaire' => $request->commentaire,
         ]);
 
+        // ✅ Notifier le candidat seulement si le statut a changé
+        if ($ancienStatut !== $request->statut) {
+            $candidature->load(['particulier.utilisateur', 'offre']);
+            NotificationService::statutCandidature($candidature);
+        }
+
         return back()->with('success', 'Statut de la candidature mis à jour.');
     }
 
     public function telechargerCV($id)
     {
-        $entreprise = auth()->user()->entreprise;
-
+        $entreprise  = auth()->user()->entreprise;
         $candidature = Candidature::whereHas('offre', fn($q) => $q->where('entreprise_id', $entreprise->id))
             ->with('particulier.cv')
             ->findOrFail($id);

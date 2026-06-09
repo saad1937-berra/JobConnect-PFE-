@@ -5,11 +5,49 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Models\Candidature;
 use App\Models\Competance;
+use App\Models\Offre;
 use App\Models\Cv;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class ParticulierWebController extends Controller
 {
+    /**
+     * Page d'accueil personnalisée pour le candidat après login
+     */
+    public function home()
+    {
+        $particulier  = auth()->user()->particulier;
+        $nonLues      = auth()->user()->notifications()->whereNull('date_lecture')->count();
+
+        // Offres recommandées (actives, les plus récentes)
+        $offresRecentes = Offre::active()
+            ->with(['entreprise', 'categorie'])
+            ->latest('date_publication')
+            ->take(6)
+            ->get();
+
+        // Mes dernières candidatures
+        $dernieresCandidatures = $particulier->candidatures()
+            ->with('offre.entreprise')
+            ->latest()
+            ->take(3)
+            ->get();
+
+        // Stats rapides
+        $stats = [
+            'candidatures'       => $particulier->candidatures()->count(),
+            'acceptees'          => $particulier->candidatures()->where('statut', 'acceptee')->count(),
+            'en_attente'         => $particulier->candidatures()->where('statut', 'en_attente')->count(),
+            'competances'        => $particulier->competances()->count(),
+        ];
+
+        return view('particulier.home', compact(
+            'particulier', 'offresRecentes',
+            'dernieresCandidatures', 'stats', 'nonLues'
+        ));
+    }
+
     public function profil()
     {
         $utilisateur = auth()->user();
@@ -54,27 +92,20 @@ class ParticulierWebController extends Controller
 
     public function ajouterCompetence(Request $request)
     {
-        $request->validate([
-            'competance_id' => 'required|exists:competances,id',
-        ]);
-
+        $request->validate(['competance_id' => 'required|exists:competances,id']);
         auth()->user()->particulier->competances()->syncWithoutDetaching([$request->competance_id]);
-
         return back()->with('success', 'Compétence ajoutée.');
     }
 
     public function supprimerCompetence($id)
     {
         auth()->user()->particulier->competances()->detach($id);
-
         return back()->with('success', 'Compétence supprimée.');
     }
 
     public function postuler(Request $request)
     {
-        $request->validate([
-            'offre_id' => 'required|exists:offres,id',
-        ]);
+        $request->validate(['offre_id' => 'required|exists:offres,id']);
 
         $particulier = auth()->user()->particulier;
 
@@ -86,11 +117,14 @@ class ParticulierWebController extends Controller
             return back()->with('error', 'Vous avez déjà postulé à cette offre.');
         }
 
-        Candidature::create([
+        $candidature = Candidature::create([
             'particulier_id' => $particulier->id,
             'offre_id'       => $request->offre_id,
             'statut'         => 'en_attente',
         ]);
+
+        $candidature->load(['particulier.utilisateur', 'offre.entreprise.utilisateur']);
+        NotificationService::nouvelleCandidature($candidature);
 
         return back()->with('success', 'Candidature envoyée avec succès !');
     }

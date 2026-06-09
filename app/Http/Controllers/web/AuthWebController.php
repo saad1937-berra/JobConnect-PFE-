@@ -42,6 +42,12 @@ class AuthWebController extends Controller
             return back()->withErrors(['email' => 'Identifiants incorrects.'])->withInput();
         }
 
+        if ($user->role === 'bloque') {
+            return back()->withErrors([
+                'email' => 'Votre compte a été suspendu. Contactez l\'administrateur.',
+            ])->withInput();
+        }
+
         Auth::login($user, $request->boolean('remember'));
 
         return redirect()->intended($this->redirectBasedOnRole($user));

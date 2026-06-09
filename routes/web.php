@@ -8,6 +8,7 @@ use App\Http\Controllers\Web\ParticulierWebController;
 use App\Http\Controllers\Web\EntrepriseWebController;
 use App\Http\Controllers\Web\AdminWebController;
 use App\Http\Controllers\Web\NotificationWebController;
+use App\Http\Controllers\Web\MatchingController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -46,6 +47,9 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/postuler',        [ParticulierWebController::class, 'postuler'])->name('postuler');
         Route::get('/candidatures',     [ParticulierWebController::class, 'candidatures'])->name('candidatures');
+        Route::get('/suggestions',      [SuggestionController::class, 'candidat'])->name('suggestions');
+        Route::get('/matching',           [MatchingController::class, 'offresMatchees'])->name('matching');
+        Route::get('/matching/{id}',      [MatchingController::class, 'scoreOffre'])->name('matching.score');
     });
 
     Route::middleware('role:entreprise')->prefix('entreprise')->name('entreprise.')->group(function () {
@@ -66,6 +70,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/candidatures/{id}',        [EntrepriseWebController::class, 'showCandidature'])->name('candidature.show');
         Route::patch('/candidatures/{id}/statut', [EntrepriseWebController::class, 'changerStatut'])->name('candidature.statut');
         Route::get('/candidatures/{id}/cv',     [EntrepriseWebController::class, 'telechargerCV'])->name('candidature.cv');
+        Route::get('/offres/{id}/suggestions', [SuggestionController::class, 'entreprise'])->name('offres.suggestions');
+        Route::get('/offres/{id}/matching', [MatchingController::class, 'candidatsMatches'])->name('offres.matching');
     });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {

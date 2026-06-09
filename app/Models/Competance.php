@@ -17,4 +17,9 @@ class Competance extends Model
     {
         return $this->belongsToMany(Particulier::class, 'particulier_competance', 'competance_id', 'particulier_id');
     }
+    
+    public function offres()
+    {
+        return $this->belongsToMany(Offre::class, 'offre_competance', 'competance_id', 'offre_id');
+    }
 }
