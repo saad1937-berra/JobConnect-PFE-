@@ -64,10 +64,11 @@ class ParticulierWebController extends Controller
             'tel'            => 'nullable|string|max:20',
             'adresse'        => 'nullable|string|max:255',
             'date_naissance' => 'nullable|date',
+            'niveau_etude'   => 'nullable|in:Bac,Bac+2,Bac+3,Bac+4,Bac+5,Doctorat',
         ]);
 
         auth()->user()->particulier->update(
-            $request->only(['bio', 'tel', 'adresse', 'date_naissance'])
+            $request->only(['bio', 'tel', 'adresse', 'date_naissance', 'niveau_etude'])
         );
 
         return back()->with('success', 'Profil mis à jour avec succès.');
@@ -92,8 +93,16 @@ class ParticulierWebController extends Controller
 
     public function ajouterCompetence(Request $request)
     {
-        $request->validate(['competance_id' => 'required|exists:competances,id']);
-        auth()->user()->particulier->competances()->syncWithoutDetaching([$request->competance_id]);
+        $request->validate([
+            'competance_id' => 'required|exists:competances,id',
+            'niveau'        => 'required|in:Débutant,Intermédiaire,Avancé,Expert',
+        ]);
+
+        // sync met à jour même si déjà existant
+        auth()->user()->particulier->competances()->syncWithoutDetaching([
+            $request->competance_id => ['niveau' => $request->niveau]
+        ]);
+
         return back()->with('success', 'Compétence ajoutée.');
     }
 
@@ -138,5 +147,23 @@ class ParticulierWebController extends Controller
             ->get();
 
         return view('particulier.candidatures', compact('candidatures'));
+    }
+    
+     public function uploadPhoto(Request $request)
+    {
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,webp|max:2048',
+        ]);
+
+        $particulier = auth()->user()->particulier;
+
+        if ($particulier->photo) {
+            Storage::disk('public')->delete($particulier->photo);
+        }
+
+        $path = $request->file('photo')->store("photos/particuliers/{$particulier->id}", 'public');
+        $particulier->update(['photo' => $path]);
+
+        return back()->with('success', 'Photo de profil mise à jour.');
     }
 }

@@ -14,6 +14,8 @@ class Particulier extends Model
         'tel',
         'adresse',
         'date_naissance',
+        'niveau_etude',
+        'photo',
     ];
 
     protected $casts = [
@@ -33,7 +35,8 @@ class Particulier extends Model
 
     public function competances()
     {
-        return $this->belongsToMany(Competance::class, 'particulier_competance', 'particulier_id', 'competance_id');
+        return $this->belongsToMany(Competance::class, 'particulier_competance', 'particulier_id', 'competance_id')
+                    ->withPivot('niveau');
     }
 
     public function candidatures()

@@ -173,7 +173,6 @@ class EntrepriseWebController extends Controller
     public function showCandidature($id)
     {
         $entreprise = auth()->user()->entreprise;
-
         $candidature = Candidature::whereHas('offre', fn($q) => $q->where('entreprise_id', $entreprise->id))
             ->with([
                 'particulier.utilisateur',
@@ -182,8 +181,8 @@ class EntrepriseWebController extends Controller
                 'offre',
             ])
             ->findOrFail($id);
-
-        return view('entreprise.candidature-show', compact('candidature'));
+        $particulier = $candidature->particulier;
+        return view('entreprise.candidature-show', compact('candidature', 'particulier'));
     }
 
     public function changerStatut(Request $request, $id)
@@ -228,4 +227,23 @@ class EntrepriseWebController extends Controller
 
         return Storage::disk('public')->download($cv->cv_path);
     }
+
+    public function uploadLogo(Request $request)
+    {
+        $request->validate([
+            'logo' => 'required|image|mimes:jpeg,png,webp|max:2048',
+        ]);
+
+        $entreprise = auth()->user()->entreprise;
+
+        if ($entreprise->logo) {
+            Storage::disk('public')->delete($entreprise->logo);
+        }
+
+        $path = $request->file('logo')->store("logos/entreprises/{$entreprise->id}", 'public');
+        $entreprise->update(['logo' => $path]);
+
+        return back()->with('success', 'Logo mis à jour.');
+    }
+    
 }

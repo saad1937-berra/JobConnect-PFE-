@@ -35,6 +35,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/notifications/{id}/lire',    [NotificationWebController::class, 'marquerLu'])->name('notifications.lire');
     Route::patch('/notifications/tout-lire',    [NotificationWebController::class, 'marquerToutLu'])->name('notifications.lire.tout');
 
+    // Routes pour les particuliers
+
     Route::middleware('role:particulier')->prefix('particulier')->name('particulier.')->group(function () {
 
         Route::get('/profil',           [ParticulierWebController::class, 'profil'])->name('profil');
@@ -50,7 +52,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/suggestions',      [SuggestionController::class, 'candidat'])->name('suggestions');
         Route::get('/matching',           [MatchingController::class, 'offresMatchees'])->name('matching');
         Route::get('/matching/{id}',      [MatchingController::class, 'scoreOffre'])->name('matching.score');
+        Route::post('/photo', [ParticulierWebController::class, 'uploadPhoto'])->name('photo.upload');
     });
+
+    // Routes pour les entreprises
 
     Route::middleware('role:entreprise')->prefix('entreprise')->name('entreprise.')->group(function () {
 
@@ -72,7 +77,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/candidatures/{id}/cv',     [EntrepriseWebController::class, 'telechargerCV'])->name('candidature.cv');
         Route::get('/offres/{id}/suggestions', [SuggestionController::class, 'entreprise'])->name('offres.suggestions');
         Route::get('/offres/{id}/matching', [MatchingController::class, 'candidatsMatches'])->name('offres.matching');
+        Route::post('/logo', [EntrepriseWebController::class, 'uploadLogo'])->name('logo.upload');
     });
+
+    // Routes pour les administrateurs
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
 

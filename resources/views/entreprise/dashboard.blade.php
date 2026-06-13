@@ -26,7 +26,7 @@
     }
 
     .dash-nav-header .company-initial {
-        width: 60px; height: 60px; border-radius: 12px;
+        width: 100px; height: 100px; border-radius: 12px;
         background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
         display: flex; align-items: center; justify-content: center;
         font-family: var(--font-head); font-size: 1.4rem; font-weight: 800; color: var(--accent);
@@ -117,13 +117,32 @@
         <aside class="dash-sidebar">
             <div class="dash-nav">
                 <div class="dash-nav-header">
-                    <div class="company-initial">
-                        @if($entreprise->logo)
-                            <img src="{{ asset('storage/'.$entreprise->logo) }}" alt="">
-                        @else
-                            {{ strtoupper(substr($entreprise->nom, 0, 2)) }}
-                        @endif
+                    {{-- Logo cliquable --}}
+                    <div style="position:relative;width:100px;height:100px;margin:0 auto 0.75rem;cursor:pointer;"
+                        onclick="document.getElementById('logo-input').click()">
+                        <div class="company-initial">
+                            @if($entreprise->logo)
+                                <img src="{{ asset('storage/'.$entreprise->logo) }}" alt="">
+                            @else
+                                {{ strtoupper(substr($entreprise->nom, 0, 2)) }}
+                            @endif
+                        </div>
+                        <div style="position:absolute;inset:0;border-radius:12px;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;color:white;font-size:0.9rem;"
+                            onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
+                            <i class="fas fa-camera"></i>
+                        </div>
                     </div>
+
+                    {{-- Form upload caché --}}
+                    <form method="POST" action="{{ route('entreprise.logo.upload') }}"
+                        enctype="multipart/form-data" id="logo-form">
+                        @csrf
+                        <input type="file" id="logo-input" name="logo"
+                            accept="image/jpeg,image/png,image/webp"
+                            style="display:none;"
+                            onchange="document.getElementById('logo-form').submit()">
+                    </form>
+
                     <h3>{{ $entreprise->nom }}</h3>
                     <span>{{ $entreprise->secteur ?? 'Entreprise' }}</span>
                 </div>

@@ -99,9 +99,14 @@
                 <h3><i class="fas fa-user" style="color:var(--accent);"></i> Profil du candidat</h3>
 
                 <div class="candidate-header">
-                    <div class="avatar-lg">
-                        {{ strtoupper(substr($candidature->particulier->utilisateur->prenom, 0, 1) . substr($candidature->particulier->utilisateur->nom, 0, 1)) }}
-                    </div>
+                    @if($particulier->photo)
+                        <img src="{{ asset('storage/'.$particulier->photo) }}"
+                            style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--border);">
+                    @else
+                        <div class="avatar">
+                            {{ strtoupper(substr($utilisateur->prenom, 0, 1) . substr($utilisateur->nom, 0, 1)) }}
+                        </div>
+                    @endif
                     <div>
                         <h2>
                             {{ $candidature->particulier->utilisateur->prenom }}

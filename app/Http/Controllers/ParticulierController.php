@@ -64,12 +64,14 @@ class ParticulierController extends Controller
     {
         $request->validate([
             'competance_id' => 'required|exists:competances,id',
+            'niveau'        => 'required|in:Débutant,Intermédiaire,Avancé,Expert',
         ]);
 
-        $particulier = $request->user()->particulier;
-        $particulier->competances()->syncWithoutDetaching([$request->competance_id]);
+        auth()->user()->particulier->competances()->syncWithoutDetaching([
+            $request->competance_id => ['niveau' => $request->niveau]
+        ]);
 
-        return response()->json(['message' => 'Compétence ajoutée.']);
+        return back()->with('success', 'Compétence ajoutée.');
     }
 
     // Supprimer une compétence
