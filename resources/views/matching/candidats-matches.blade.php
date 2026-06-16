@@ -1,85 +1,31 @@
-@extends('layouts.app')
+@extends('layouts.entreprise')
 @section('title', 'Candidats matchés')
 
-@push('styles')
-<style>
-    .matching-page { padding: 2.5rem 0; }
-    .page-header { margin-bottom: 2rem; }
-    .page-header h1 { font-family: var(--font-head); font-size: 2rem; font-weight: 800; letter-spacing:-0.5px; }
-    .page-header p { color: var(--muted); margin-top: 0.25rem; }
+@section('ent-content')
 
-    .offre-banner {
-        background: var(--ink); color: var(--paper);
-        border-radius: var(--radius); padding: 1.5rem 2rem;
-        margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-    }
-    .offre-banner h3 { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
-    .offre-banner p { font-size: 0.85rem; color: #aaa; }
-
-    .candidats-list { display: flex; flex-direction: column; gap: 1rem; }
-
-    .candidat-item {
-        background: white; border: 1px solid var(--border);
-        border-radius: var(--radius); padding: 1.5rem;
-        display: flex; align-items: center; gap: 1.25rem;
-        transition: all 0.2s;
-    }
-    .candidat-item:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
-
-    .avatar {
-        width: 52px; height: 52px; border-radius: 50%;
-        background: var(--ink); color: var(--paper);
-        display: flex; align-items: center; justify-content: center;
-        font-family: var(--font-head); font-size: 1.1rem; font-weight: 800;
-        flex-shrink: 0;
-    }
-
-    .candidat-info { flex: 1; }
-    .candidat-info h3 { font-family: var(--font-head); font-size: 1rem; font-weight: 700; margin-bottom: 0.2rem; }
-    .candidat-info .email { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.5rem; }
-
-    .comp-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
-    .comp-match { background: #d4edda; color: #155724; padding: 0.15rem 0.55rem; border-radius: 5px; font-size: 0.72rem; font-weight: 600; }
-    .comp-other { background: var(--paper); color: var(--muted); padding: 0.15rem 0.55rem; border-radius: 5px; font-size: 0.72rem; border: 1px solid var(--border); }
-
-    .matching-gauge { flex-shrink: 0; text-align: center; min-width: 110px; }
-    .gauge-score { font-family: var(--font-head); font-size: 1.4rem; font-weight: 800; line-height: 1; }
-    .gauge-bar { height: 8px; background: var(--paper); border-radius: 4px; overflow: hidden; margin: 0.4rem 0; }
-    .gauge-fill { height: 100%; border-radius: 4px; }
-    .gauge-niveau { font-size: 0.72rem; color: var(--muted); }
-
-    .candidat-actions { flex-shrink: 0; display: flex; flex-direction: column; gap: 0.4rem; }
-
-    .empty-state { text-align: center; padding: 4rem; color: var(--muted); background: white; border: 1px solid var(--border); border-radius: var(--radius); }
-    .empty-state i { font-size: 3rem; margin-bottom: 1rem; display: block; }
-</style>
-@endpush
-
-@section('content')
-<div class="container matching-page">
-
-    <div class="page-header">
-        <h1><i class="fas fa-users" style="color:var(--accent);margin-right:0.5rem;"></i> Candidats matchés</h1>
-        <p>{{ $candidatsMatches->count() }} candidat(s) classés par compatibilité</p>
+    <div class="ent-page-header">
+        <div>
+            <h1>Candidats matchés</h1>
+            <p>{{ $candidatsMatches->count() }} candidat(s) classés par compatibilité</p>
+        </div>
     </div>
 
     <!-- Offre concernée -->
-    <div class="offre-banner">
+    <div style="background:var(--ent-green);color:white;border-radius:var(--ent-radius);padding:1.25rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;">
         <div>
-            <h3>{{ $offre->titre }}</h3>
-            <p>
+            <h3 style="font-family:var(--ent-font-head);font-size:1rem;font-weight:700;margin-bottom:0.2rem;">{{ $offre->titre }}</h3>
+            <p style="font-size:0.83rem;color:rgba(255,255,255,0.7);">
                 @if($offre->localisation) <i class="fas fa-map-marker-alt"></i> {{ $offre->localisation }} &nbsp; @endif
                 @if($offre->contrat) <i class="fas fa-briefcase"></i> {{ $offre->contrat }} @endif
-                @if($offre->niveau_etude) &nbsp; <i class="fas fa-graduation-cap"></i> {{ $offre->niveau_etude }} @endif
             </p>
         </div>
-        <a href="{{ route('offres.show', $offre->id) }}" class="btn btn-outline" style="color:var(--paper);border-color:rgba(255,255,255,0.2);">
+        <a href="{{ route('offres.show', $offre->id) }}" class="ent-btn ent-btn-outline" style="color:white;border-color:rgba(255,255,255,0.3);">
             Voir l'offre <i class="fas fa-arrow-right"></i>
         </a>
     </div>
 
     @if($candidatsMatches->count() > 0)
-        <div class="candidats-list">
+        <div style="display:flex;flex-direction:column;gap:0.85rem;">
             @foreach($candidatsMatches as $particulier)
                 @php
                     $score   = $particulier->matching['score'];
@@ -90,43 +36,41 @@
                     $initials = strtoupper(substr($particulier->utilisateur->prenom, 0, 1) . substr($particulier->utilisateur->nom, 0, 1));
                 @endphp
 
-                <div class="candidat-item">
-                    <div class="avatar">{{ $initials }}</div>
+                <div class="ent-card" style="display:flex;align-items:center;gap:1.25rem;padding:1.25rem 1.5rem;">
+                    <div class="ent-candidate-avatar" style="width:44px;height:44px;font-size:0.85rem;">{{ $initials }}</div>
 
-                    <div class="candidat-info">
-                        <h3>{{ $particulier->utilisateur->prenom }} {{ $particulier->utilisateur->nom }}</h3>
-                        <div class="email">{{ $particulier->utilisateur->email }}</div>
-                        <div class="comp-tags">
+                    <div style="flex:1;">
+                        <div class="ent-td-title">{{ $particulier->utilisateur->prenom }} {{ $particulier->utilisateur->nom }}</div>
+                        <div class="ent-td-sub">{{ $particulier->utilisateur->email }}</div>
+                        <div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.4rem;">
                             @foreach($matched as $comp)
-                                <span class="comp-match"><i class="fas fa-check"></i> {{ $comp }}</span>
+                                <span class="ent-badge ent-badge-teal"><i class="fas fa-check"></i> {{ $comp }}</span>
                             @endforeach
                             @foreach($autres as $comp)
-                                <span class="comp-other">{{ $comp }}</span>
+                                <span class="ent-badge ent-badge-gray">{{ $comp }}</span>
                             @endforeach
                         </div>
-                        <div style="font-size:0.78rem;color:var(--muted);margin-top:0.4rem;display:flex;gap:0.75rem;">
+                        <div style="font-size:0.75rem;color:var(--ent-muted);margin-top:0.35rem;display:flex;gap:0.75rem;">
                             @if($particulier->adresse) <span><i class="fas fa-map-marker-alt"></i> {{ $particulier->adresse }}</span> @endif
-                            @if($particulier->cv->count() > 0) <span><i class="fas fa-file-pdf" style="color:var(--accent);"></i> CV dispo</span> @endif
+                            @if($particulier->cv->count() > 0) <span><i class="fas fa-file-pdf" style="color:#dc2626;"></i> CV dispo</span> @endif
                         </div>
                     </div>
 
-                    <!-- Jauge -->
-                    <div class="matching-gauge">
-                        <div class="gauge-score" style="color:{{ $couleur }}">{{ $score }}%</div>
-                        <div class="gauge-bar">
-                            <div class="gauge-fill" style="width:{{ $score }}%;background:{{ $couleur }};"></div>
+                    <div class="ent-candidate-info" style="flex-direction:column;text-align:center;min-width:90px;gap:0.25rem;">
+                        <div style="font-family:var(--ent-font-head);font-size:1.4rem;font-weight:800;color:{{ $couleur }};">{{ $score }}%</div>
+                        <div style="height:6px;background:var(--ent-bg);border-radius:3px;width:80px;overflow:hidden;">
+                            <div style="width:{{ $score }}%;height:100%;background:{{ $couleur }};border-radius:3px;"></div>
                         </div>
-                        <div class="gauge-niveau" style="color:{{ $couleur }}">{{ $niveau }}</div>
+                        <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;color:{{ $couleur }};">{{ $niveau }}</div>
                     </div>
 
-                    <!-- Actions -->
-                    <div class="candidat-actions">
+                    <div style="display:flex;flex-direction:column;gap:0.4rem;flex-shrink:0;">
                         @if($particulier->cv->count() > 0)
-                            <a href="{{ asset('storage/'.$particulier->cv->last()->cv_path) }}" target="_blank" class="btn btn-primary btn-sm">
+                            <a href="{{ asset('storage/'.$particulier->cv->last()->cv_path) }}" target="_blank" class="ent-btn ent-btn-primary ent-btn-sm">
                                 <i class="fas fa-file-pdf"></i> CV
                             </a>
                         @endif
-                        <a href="mailto:{{ $particulier->utilisateur->email }}" class="btn btn-outline btn-sm">
+                        <a href="mailto:{{ $particulier->utilisateur->email }}" class="ent-btn ent-btn-outline ent-btn-sm">
                             <i class="fas fa-envelope"></i> Contact
                         </a>
                     </div>
@@ -134,11 +78,11 @@
             @endforeach
         </div>
     @else
-        <div class="empty-state">
-            <i class="fas fa-users"></i>
-            <p style="font-size:1.05rem;font-weight:500;margin-bottom:0.5rem;">Aucun candidat compatible</p>
-            <p style="font-size:0.9rem;">Aucun candidat inscrit ne correspond à cette offre pour le moment.</p>
+        <div class="ent-card" style="text-align:center;padding:3rem;color:var(--ent-muted);">
+            <i class="fas fa-users" style="font-size:2.5rem;margin-bottom:1rem;display:block;color:var(--ent-border);"></i>
+            <strong style="display:block;font-size:1rem;font-weight:700;color:var(--ent-ink);margin-bottom:0.35rem;">Aucun candidat compatible</strong>
+            <p style="font-size:0.88rem;">Aucun candidat inscrit ne correspond à cette offre pour le moment.</p>
         </div>
     @endif
-</div>
+
 @endsection

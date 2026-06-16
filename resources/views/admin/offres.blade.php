@@ -1,25 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 @section('title', 'Gestion Offres')
 
-@push('styles')
-<style>
-    .admin-page { padding: 2.5rem 0; }
-    .page-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem; }
-    .page-header h1 { font-family:var(--font-head);font-size:2rem;font-weight:800;letter-spacing:-0.5px; }
-    .filter-bar { display:flex;gap:.75rem;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap; }
-    .filter-bar select,.filter-bar input { padding:.5rem .85rem;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-body);font-size:.88rem;background:white;outline:none; }
-    .table-card { background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden; }
-    table { width:100%;border-collapse:collapse; }
-    thead th { padding:.75rem 1.5rem;text-align:left;font-size:.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;background:var(--paper);border-bottom:1px solid var(--border); }
-    tbody td { padding:1rem 1.5rem;border-bottom:1px solid var(--border);font-size:.9rem;vertical-align:middle; }
-    tbody tr:last-child td { border-bottom:none; }
-    tbody tr:hover { background:#fafafa; }
-    .td-title { font-weight:600;margin-bottom:.15rem; }
-    .td-sub   { font-size:.78rem;color:var(--muted); }
-</style>
-@endpush
-
-@section('content')
+@section('admin-content')
 <div class="container admin-page">
     <div class="page-header">
         <div>

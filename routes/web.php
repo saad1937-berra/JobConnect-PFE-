@@ -9,6 +9,7 @@ use App\Http\Controllers\Web\EntrepriseWebController;
 use App\Http\Controllers\Web\AdminWebController;
 use App\Http\Controllers\Web\NotificationWebController;
 use App\Http\Controllers\Web\MatchingController;
+use App\Http\Controllers\Web\SuggestionController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');

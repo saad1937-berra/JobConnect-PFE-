@@ -1,36 +1,13 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 @section('title', 'Gestion Entreprises')
 
-@push('styles')
-<style>
-    .admin-page { padding: 2.5rem 0; }
-    .page-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem; }
-    .page-header h1 { font-family:var(--font-head);font-size:2rem;font-weight:800;letter-spacing:-0.5px; }
-    .filter-bar { display:flex;gap:.75rem;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap; }
-    .filter-bar input { padding:.5rem .85rem;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-body);font-size:.88rem;background:white;outline:none;min-width:220px; }
-    .table-card { background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden; }
-    table { width:100%;border-collapse:collapse; }
-    thead th { padding:.75rem 1.5rem;text-align:left;font-size:.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;background:var(--paper);border-bottom:1px solid var(--border); }
-    tbody td { padding:1rem 1.5rem;border-bottom:1px solid var(--border);font-size:.9rem;vertical-align:middle; }
-    tbody tr:last-child td { border-bottom:none; }
-    tbody tr:hover { background:#fafafa; }
-    .td-title { font-weight:600;margin-bottom:.15rem; }
-    .td-sub   { font-size:.78rem;color:var(--muted); }
-    .company-initial { width:40px;height:40px;border-radius:8px;background:var(--paper);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;color:var(--accent);font-size:.95rem;flex-shrink:0;overflow:hidden; }
-    .company-initial img { width:100%;height:100%;object-fit:cover; }
-    .company-row { display:flex;align-items:center;gap:.75rem; }
-    .actions-cell { display:flex;gap:.4rem; }
-</style>
-@endpush
-
-@section('content')
+@section('admin-content')
 <div class="container admin-page">
     <div class="page-header">
         <div>
             <h1>Entreprises</h1>
             <p style="color:var(--muted);font-size:.9rem;">{{ $entreprises->total() }} entreprise(s)</p>
         </div>
-        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Dashboard</a>
     </div>
 
     <form method="GET" action="{{ route('admin.entreprises') }}" class="filter-bar">

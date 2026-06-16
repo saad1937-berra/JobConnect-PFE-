@@ -1,0 +1,834 @@
+/* ════════════════════════════════════════════════
+   JobConnect — Pages publiques (public.css)
+   Auth, offres index/show, home visiteur
+   ════════════════════════════════════════════════ */
+
+/* ════════════════════════════════
+   AUTH PAGES (login, register, forgot, reset)
+   ════════════════════════════════ */
+.auth-page {
+    min-height: calc(100vh - 144px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 440px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 40px rgba(0, 0, 0, 0.06);
+}
+
+.auth-card-wide {
+    max-width: 500px;
+}
+
+.auth-logo {
+    font-family: var(--font-head);
+    font-size: 1.6rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.auth-logo span {
+    color: var(--accent);
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.88rem;
+    color: var(--muted);
+}
+
+.auth-footer a {
+    color: var(--accent2);
+    text-decoration: none;
+    font-weight: 500;
+}
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Role selector (register) */
+.role-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.role-option input[type="radio"] {
+    display: none;
+}
+
+.role-option label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.role-option input:checked + label {
+    border-color: var(--accent);
+    background: rgba(232, 76, 30, 0.04);
+}
+
+.role-option .role-icon {
+    font-size: 1.8rem;
+}
+.role-option .role-name {
+    font-family: var(--font-head);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+.role-option .role-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* Password strength */
+.password-strength {
+    margin-top: 0.4rem;
+}
+.strength-bar {
+    height: 4px;
+    border-radius: 4px;
+    background: var(--border);
+    margin-bottom: 0.3rem;
+    overflow: hidden;
+}
+.strength-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition:
+        width 0.3s,
+        background 0.3s;
+    width: 0;
+}
+.strength-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+/* ════════════════════════════════
+   OFFRES INDEX
+   ════════════════════════════════ */
+.offres-page {
+    padding: 2.5rem 0;
+}
+
+.offres-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+/* Sidebar filtres */
+.filtres-sidebar {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    position: sticky;
+    top: 84px;
+}
+
+.filtres-sidebar h3 {
+    font-family: var(--font-head);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.filtre-group {
+    margin-bottom: 1.5rem;
+}
+
+.filtre-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+}
+
+.filtre-group select,
+.filtre-group input {
+    width: 100%;
+    padding: 0.55rem 0.8rem;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.88rem;
+    background: var(--paper);
+    color: var(--ink);
+    outline: none;
+}
+
+.filtre-group select:focus,
+.filtre-group input:focus {
+    border-color: var(--accent2);
+}
+
+/* Offres list */
+.offres-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.offre-item {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    transition: all 0.2s;
+    text-decoration: none;
+    color: inherit;
+}
+
+.offre-item:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+    transform: translateX(3px);
+}
+
+.offre-item .company-logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.offre-item .company-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.offre-info {
+    flex: 1;
+}
+.offre-info h3 {
+    font-family: var(--font-head);
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+}
+.offre-info .company {
+    font-size: 0.88rem;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+}
+
+.offre-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    padding: 0.2rem 0.6rem;
+    background: var(--paper);
+    border-radius: 5px;
+}
+
+.offre-right {
+    text-align: right;
+    flex-shrink: 0;
+}
+.offre-right .salaire {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+}
+.offre-right .date {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+}
+
+.pagination-wrapper {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+/* ════════════════════════════════
+   OFFRE SHOW (détail)
+   ════════════════════════════════ */
+.offre-detail-page {
+    padding: 2.5rem 0;
+}
+
+.offre-detail-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 2rem;
+    align-items: start;
+}
+
+.offre-main {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+}
+
+.offre-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.offre-header .company-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 14px;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.offre-header .company-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.offre-title-block h1 {
+    font-family: var(--font-head);
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.35rem;
+}
+
+.offre-title-block .company-link {
+    color: var(--accent2);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.offre-section {
+    margin-bottom: 2rem;
+}
+.offre-section h2 {
+    font-family: var(--font-head);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--paper);
+}
+
+.offre-section p,
+.offre-section li {
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: #333;
+}
+.offre-section ul {
+    padding-left: 1.5rem;
+}
+.offre-section ul li {
+    margin-bottom: 0.35rem;
+}
+
+/* Sidebar offre show */
+.offre-sidebar {
+    position: sticky;
+    top: 84px;
+}
+
+.sidebar-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.sidebar-card h3 {
+    font-family: var(--font-head);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+.info-row .label {
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.info-row .value {
+    font-weight: 600;
+    text-align: right;
+}
+
+.apply-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.85rem;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.already-applied {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem;
+    background: #d4edda;
+    color: #155724;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.company-card {
+    text-align: center;
+}
+.company-card .logo-big {
+    width: 80px;
+    height: 80px;
+    border-radius: 14px;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: var(--accent);
+    margin: 0 auto 1rem;
+    overflow: hidden;
+}
+.company-card .logo-big img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.company-card h4 {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+.company-card .secteur {
+    font-size: 0.83rem;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+}
+.company-card p {
+    font-size: 0.85rem;
+    color: #555;
+    line-height: 1.6;
+}
+
+.breadcrumb {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+}
+.breadcrumb a {
+    color: var(--accent2);
+    text-decoration: none;
+}
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+/* ════════════════════════════════
+   HOME VISITEUR
+   ════════════════════════════════ */
+.hero {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 6rem 2rem 5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        ellipse at 70% 50%,
+        rgba(232, 76, 30, 0.15) 0%,
+        transparent 60%
+    );
+    pointer-events: none;
+}
+
+.hero-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-tag {
+    display: inline-block;
+    background: rgba(232, 76, 30, 0.15);
+    color: var(--accent);
+    border: 1px solid rgba(232, 76, 30, 0.3);
+    padding: 0.3rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 1.5rem;
+}
+
+.hero h1 {
+    font-family: var(--font-head);
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+    letter-spacing: -2px;
+}
+
+.hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+}
+.hero p {
+    font-size: 1.15rem;
+    color: #aaa;
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+}
+.hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.hero-stat {
+    display: flex;
+    gap: 3rem;
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hero-stat strong {
+    display: block;
+    font-family: var(--font-head);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--paper);
+}
+.hero-stat span {
+    font-size: 0.85rem;
+    color: #777;
+}
+
+.search-section {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+}
+
+.search-bar {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0.75rem;
+    background: var(--paper);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 0.5rem;
+}
+
+.search-bar input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.5rem 0.75rem;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--ink);
+    outline: none;
+}
+.search-bar select {
+    border: none;
+    background: white;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--ink);
+    cursor: pointer;
+    outline: none;
+}
+
+.section {
+    padding: 4rem 0;
+}
+
+.offres-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.25rem;
+}
+
+.offre-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s,
+        border-color 0.2s;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.offre-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    border-color: var(--accent);
+}
+.offre-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.offre-card .company-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.offre-card .company-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.offre-card h3 {
+    font-family: var(--font-head);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+.offre-card .company-name {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+.offre-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+.meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    padding: 0.2rem 0.5rem;
+    background: var(--paper);
+    border-radius: 5px;
+}
+.offre-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+.offre-date {
+    font-size: 0.78rem;
+    color: var(--muted);
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.categorie-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem 1.25rem;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+}
+
+.categorie-card:hover {
+    border-color: var(--accent);
+    background: var(--ink);
+    color: var(--paper);
+}
+.categorie-card .icon {
+    font-size: 1.8rem;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+.categorie-card h4 {
+    font-family: var(--font-head);
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+.categorie-card span {
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+.categorie-card:hover span {
+    color: #aaa;
+}
+
+.cta-banner {
+    background: var(--accent);
+    color: white;
+    padding: 4rem 2rem;
+    text-align: center;
+    border-radius: var(--radius);
+    margin: 2rem 0;
+}
+
+.cta-banner h2 {
+    font-family: var(--font-head);
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+.cta-banner p {
+    font-size: 1rem;
+    opacity: 0.85;
+    margin-bottom: 2rem;
+}
+.btn-white {
+    background: white;
+    color: var(--accent) !important;
+}
+
+/* ════════════════════════════════
+   RESPONSIVE
+   ════════════════════════════════ */
+@media (max-width: 900px) {
+    .offres-layout {
+        grid-template-columns: 1fr;
+    }
+    .filtres-sidebar {
+        position: static;
+    }
+    .offre-detail-layout {
+        grid-template-columns: 1fr;
+    }
+    .offre-sidebar {
+        position: static;
+    }
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    .role-selector {
+        grid-template-columns: 1fr 1fr;
+    }
+}

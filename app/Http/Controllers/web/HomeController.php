@@ -16,6 +16,14 @@ class HomeController extends Controller
 {
     public function index()
     {
+        if (auth()->check() && auth()->user()->isEntreprise()) {
+            return redirect()->route('entreprise.dashboard');
+        }
+
+        if (auth()->check() && auth()->user()->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
+
         // ── Candidat ────────────────────────────────────────────────
         if (auth()->check() && auth()->user()->isParticulier()) {
             $particulier = auth()->user()->particulier->load(['cv', 'competances', 'candidatures']);

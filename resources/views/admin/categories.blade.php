@@ -1,29 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 @section('title', 'Catégories')
 
-@push('styles')
-<style>
-    .admin-page { padding: 2.5rem 0; }
-    .page-layout { display:grid;grid-template-columns:1fr 360px;gap:2rem;align-items:start; }
-    .page-header { margin-bottom:2rem; }
-    .page-header h1 { font-family:var(--font-head);font-size:2rem;font-weight:800;letter-spacing:-0.5px; }
-    .table-card { background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden; }
-    .table-header { display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border); }
-    .table-header h3 { font-family:var(--font-head);font-size:1rem;font-weight:700; }
-    table { width:100%;border-collapse:collapse; }
-    thead th { padding:.75rem 1.5rem;text-align:left;font-size:.78rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;background:var(--paper);border-bottom:1px solid var(--border); }
-    tbody td { padding:1rem 1.5rem;border-bottom:1px solid var(--border);font-size:.9rem;vertical-align:middle; }
-    tbody tr:last-child td { border-bottom:none; }
-    tbody tr:hover { background:#fafafa; }
-    .form-card { background:white;border:1px solid var(--border);border-radius:var(--radius);padding:1.75rem;position:sticky;top:84px; }
-    .form-card h3 { font-family:var(--font-head);font-size:1rem;font-weight:700;margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1px solid var(--border); }
-    .actions-cell { display:flex;gap:.4rem; }
-    @media(max-width:900px){ .page-layout{grid-template-columns:1fr;} .form-card{position:static;} }
-</style>
-@endpush
-
-@section('content')
-<div class="container admin-page">
+@section('admin-content')
     <div class="page-header">
         <h1>Catégories</h1>
     </div>
@@ -89,7 +67,6 @@
             </form>
         </div>
     </div>
-</div>
 
 @push('scripts')
 <script>

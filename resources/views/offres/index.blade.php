@@ -1,149 +1,7 @@
-@extends('layouts.app')
-@section('title', 'Offres d\'emploi')
+@extends(auth()->check() && auth()->user()->isParticulier() ? 'layouts.particulier' : 'layouts.app')
+@section('title', "Offres d'emploi")
 
-@push('styles')
-<style>
-    .offres-page { padding: 2.5rem 0; }
-
-    .page-header {
-        margin-bottom: 2rem;
-    }
-
-    .page-header h1 {
-        font-family: var(--font-head);
-        font-size: 2rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-    }
-
-    .page-header p { color: var(--muted); margin-top: 0.25rem; }
-
-    .offres-layout {
-        display: grid;
-        grid-template-columns: 280px 1fr;
-        gap: 2rem;
-        align-items: start;
-    }
-
-    /* Sidebar filtres */
-    .filtres-sidebar {
-        background: white;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 1.5rem;
-        position: sticky;
-        top: 84px;
-    }
-
-    .filtres-sidebar h3 {
-        font-family: var(--font-head);
-        font-size: 1rem;
-        font-weight: 700;
-        margin-bottom: 1.25rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .filtre-group { margin-bottom: 1.5rem; }
-    .filtre-group label {
-        display: block;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--muted);
-        margin-bottom: 0.6rem;
-    }
-
-    .filtre-group select,
-    .filtre-group input {
-        width: 100%;
-        padding: 0.55rem 0.8rem;
-        border: 1.5px solid var(--border);
-        border-radius: 8px;
-        font-family: var(--font-body);
-        font-size: 0.88rem;
-        background: var(--paper);
-        color: var(--ink);
-        outline: none;
-    }
-
-    .filtre-group select:focus,
-    .filtre-group input:focus { border-color: var(--accent2); }
-
-    /* Offres list */
-    .offres-list { display: flex; flex-direction: column; gap: 1rem; }
-
-    .offre-item {
-        background: white;
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 1.5rem;
-        display: flex;
-        gap: 1.25rem;
-        align-items: flex-start;
-        transition: all 0.2s;
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .offre-item:hover {
-        border-color: var(--accent);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.07);
-        transform: translateX(3px);
-    }
-
-    .company-logo {
-        width: 52px; height: 52px;
-        border-radius: 10px;
-        background: var(--paper);
-        border: 1px solid var(--border);
-        display: flex; align-items: center; justify-content: center;
-        font-family: var(--font-head); font-weight: 800; font-size: 1.1rem; color: var(--accent);
-        flex-shrink: 0; overflow: hidden;
-    }
-
-    .company-logo img { width: 100%; height: 100%; object-fit: cover; }
-
-    .offre-info { flex: 1; }
-    .offre-info h3 {
-        font-family: var(--font-head);
-        font-size: 1.05rem;
-        font-weight: 700;
-        margin-bottom: 0.2rem;
-    }
-
-    .offre-info .company { font-size: 0.88rem; color: var(--muted); margin-bottom: 0.75rem; }
-
-    .offre-chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-    .chip {
-        display: inline-flex; align-items: center; gap: 0.3rem;
-        font-size: 0.78rem; color: var(--muted);
-        padding: 0.2rem 0.6rem; background: var(--paper); border-radius: 5px;
-    }
-
-    .offre-right { text-align: right; flex-shrink: 0; }
-    .offre-right .salaire {
-        font-family: var(--font-head);
-        font-weight: 700;
-        font-size: 0.95rem;
-        color: var(--ink);
-        margin-bottom: 0.5rem;
-    }
-
-    .offre-right .date { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem; }
-
-    .pagination-wrapper { margin-top: 2rem; display: flex; justify-content: center; }
-
-    @media (max-width: 900px) {
-        .offres-layout { grid-template-columns: 1fr; }
-        .filtres-sidebar { position: static; }
-    }
-</style>
-@endpush
-
-@section('content')
+@section(auth()->check() && auth()->user()->isParticulier() ? 'part-content' : 'content')
 <div class="container offres-page">
     <div class="page-header">
         <h1>Offres d'emploi</h1>
@@ -151,6 +9,7 @@
     </div>
 
     <div class="offres-layout">
+
         <!-- Sidebar filtres -->
         <aside class="filtres-sidebar">
             <h3>
@@ -184,10 +43,11 @@
                     <label>Type de contrat</label>
                     <select name="contrat">
                         <option value="">Tous</option>
-                        <option value="CDI"   {{ request('contrat') == 'CDI'   ? 'selected' : '' }}>CDI</option>
-                        <option value="CDD"   {{ request('contrat') == 'CDD'   ? 'selected' : '' }}>CDD</option>
-                        <option value="Stage" {{ request('contrat') == 'Stage' ? 'selected' : '' }}>Stage</option>
+                        <option value="CDI"       {{ request('contrat') == 'CDI'       ? 'selected' : '' }}>CDI</option>
+                        <option value="CDD"       {{ request('contrat') == 'CDD'       ? 'selected' : '' }}>CDD</option>
+                        <option value="Stage"     {{ request('contrat') == 'Stage'     ? 'selected' : '' }}>Stage</option>
                         <option value="Freelance" {{ request('contrat') == 'Freelance' ? 'selected' : '' }}>Freelance</option>
+                        <option value="Alternance" {{ request('contrat') == 'Alternance' ? 'selected' : '' }}>Alternance</option>
                     </select>
                 </div>
 
@@ -197,7 +57,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">
-                    Appliquer
+                    <i class="fas fa-search"></i> Appliquer
                 </button>
             </form>
         </aside>
@@ -216,7 +76,7 @@
                         </div>
                         <div class="offre-info">
                             <h3>{{ $offre->titre }}</h3>
-                            <div class="company">{{ $offre->entreprise->nom }} • {{ $offre->localisation }}</div>
+                            <div class="company">{{ $offre->entreprise->nom }} • {{ $offre->localisation ?? '—' }}</div>
                             <div class="offre-chips">
                                 @if($offre->contrat)
                                     <span class="badge badge-blue">{{ $offre->contrat }}</span>
