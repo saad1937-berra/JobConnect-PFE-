@@ -9,6 +9,7 @@ use App\Models\Offre;
 use App\Models\Candidature;
 use App\Models\Categorie;
 use App\Models\Competance;
+use App\Models\Report;
 use Illuminate\Http\Request;
 
 class AdminWebController extends Controller
@@ -22,9 +23,13 @@ class AdminWebController extends Controller
             'total_offres'            => Offre::count(),
             'offres_actives'          => Offre::where('statut', 'active')->count(),
             'total_candidatures'      => Candidature::count(),
+            'signalements_ouverts'    => Report::whereIn('status', ['nouveau', 'en_cours'])->count(),
+            'messages_total'          => \App\Models\Message::count(),
             'candidatures_par_statut' => Candidature::selectRaw('statut, count(*) as total')
                                             ->groupBy('statut')
                                             ->get(),
+            'offres_par_categorie'    => Categorie::withCount('offres')->orderByDesc('offres_count')->take(6)->get(),
+            'entreprises_actives'     => Entreprise::withCount('offres')->orderByDesc('offres_count')->take(5)->get(),
         ];
 
         $entreprises = Entreprise::with('utilisateur')
@@ -34,6 +39,33 @@ class AdminWebController extends Controller
             ->get();
 
         return view('admin.dashboard', compact('stats', 'entreprises'));
+    }
+
+    public function signalements(Request $request)
+    {
+        $reports = Report::with(['reporter', 'reported', 'conversation.lastMessage'])
+            ->when($request->status, fn($q) => $q->where('status', $request->status))
+            ->latest()
+            ->paginate(20);
+
+        return view('admin.signalements', compact('reports'));
+    }
+
+    public function updateSignalement(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:nouveau,en_cours,traite,rejete',
+            'admin_note' => 'nullable|string|max:2000',
+        ]);
+
+        $report = Report::findOrFail($id);
+        $report->update([
+            'status' => $request->status,
+            'admin_note' => $request->admin_note,
+            'resolved_at' => in_array($request->status, ['traite', 'rejete'], true) ? now() : null,
+        ]);
+
+        return back()->with('success', 'Signalement mis a jour.');
     }
 
     // ── Entreprises ──────────────────────────────────────────────────

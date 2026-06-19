@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
         DB::table('offre_competance')->truncate();
         DB::table('particulier_competance')->truncate();
         DB::table('particulier_offre')->truncate();
+        DB::table('reports')->truncate();
         DB::table('messages')->truncate();
         DB::table('conversations')->truncate();
         DB::table('notifications')->truncate();

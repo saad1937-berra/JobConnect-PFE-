@@ -105,6 +105,7 @@
     <footer class="part-footer">
         <span>© {{ date('Y') }} <strong>JobConnect</strong></span>
         <span style="color:#aaa;">Trouve ton job. Fais ta vie.</span>
+        <a href="{{ route('privacy') }}" style="color:#aaa;text-decoration:none;">Confidentialite</a>
     </footer>
 
     @stack('scripts')

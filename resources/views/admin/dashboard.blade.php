@@ -35,6 +35,16 @@
             <strong>{{ $stats['total_offres'] }}</strong>
             <span>Total offres</span>
         </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#fee2e2;color:#b91c1c;"><i class="fas fa-flag"></i></div>
+            <strong>{{ $stats['signalements_ouverts'] }}</strong>
+            <span>Signalements ouverts</span>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#dbeafe;color:#1d4ed8;"><i class="fas fa-comments"></i></div>
+            <strong>{{ $stats['messages_total'] }}</strong>
+            <span>Messages echanges</span>
+        </div>
     </div>
 
     <!-- Candidatures par statut -->
@@ -113,6 +123,62 @@
                 @endforeach
             </tbody>
         </table>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start;">
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Offres par categorie</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>Categorie</th><th>Offres</th><th>Volume</th></tr>
+                </thead>
+                <tbody>
+                    @forelse($stats['offres_par_categorie'] as $cat)
+                        @php
+                            $maxCategories = max(1, $stats['offres_par_categorie']->max('offres_count') ?: 1);
+                            $pct = round($cat->offres_count / $maxCategories * 100);
+                        @endphp
+                        <tr>
+                            <td>{{ $cat->nom }}</td>
+                            <td><strong>{{ $cat->offres_count }}</strong></td>
+                            <td>
+                                <div style="background:var(--paper);border-radius:4px;height:8px;">
+                                    <div style="width:{{ $pct }}%;background:var(--accent);height:8px;border-radius:4px;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="3" style="text-align:center;color:var(--muted);padding:1rem;">Aucune categorie.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Entreprises les plus actives</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr><th>Entreprise</th><th>Offres</th></tr>
+                </thead>
+                <tbody>
+                    @forelse($stats['entreprises_actives'] as $entActive)
+                        <tr>
+                            <td>
+                                <div class="td-title">{{ $entActive->nom }}</div>
+                                <div class="td-sub">{{ $entActive->utilisateur?->email }}</div>
+                            </td>
+                            <td><strong>{{ $entActive->offres_count }}</strong></td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="2" style="text-align:center;color:var(--muted);padding:1rem;">Aucune entreprise.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
 @endsection

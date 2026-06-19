@@ -24,6 +24,7 @@ class AdminController extends Controller
     {
         $utilisateur = Utilisateur::findOrFail($id);
         $utilisateur->update(['role' => 'bloque']);
+        $utilisateur->tokens()->delete();
 
         return response()->json(['message' => "Utilisateur {$utilisateur->nom} bloqué."]);
     }

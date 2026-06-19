@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Candidature;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Models\Report;
 use App\Models\Utilisateur;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class MessageController extends Controller
@@ -70,6 +72,7 @@ class MessageController extends Controller
         ]);
 
         $conversation->update(['last_message_at' => now()]);
+        $this->notifyMessageRecipient($conversation, $user);
 
         return back()->with('success', 'Message envoye.');
     }
@@ -102,6 +105,7 @@ class MessageController extends Controller
             ]);
 
             $conversation->update(['last_message_at' => now()]);
+            $this->notifyMessageRecipient($conversation, $current);
         }
 
         return redirect()->route('messages.show', $conversation->id);
@@ -128,13 +132,25 @@ class MessageController extends Controller
         $adminConversation = Conversation::between($user, $admin);
         $reason = filled($request->reason) ? $request->reason : 'Aucun motif detaille.';
 
+        $report = Report::create([
+            'conversation_id' => $conversation->id,
+            'reporter_id' => $user->id,
+            'reported_id' => $other->id,
+            'reason' => $reason,
+        ]);
+
         Message::create([
             'conversation_id' => $adminConversation->id,
             'sender_id' => $user->id,
-            'body' => "Signalement de conversation #{$conversation->id}\nUtilisateur signale : {$other?->prenom} {$other?->nom} ({$other?->email})\nMotif : {$reason}",
+            'body' => "Signalement #{$report->id} de conversation #{$conversation->id}\nUtilisateur signale : {$other?->prenom} {$other?->nom} ({$other?->email})\nMotif : {$reason}",
         ]);
 
         $adminConversation->update(['last_message_at' => now()]);
+        NotificationService::envoyer(
+            $admin->id,
+            'signalement',
+            "Nouveau signalement #{$report->id} envoye par {$user->prenom} {$user->nom}."
+        );
 
         return redirect()
             ->route('messages.show', $adminConversation->id)
@@ -258,5 +274,20 @@ class MessageController extends Controller
             ->where('statut', 'acceptee')
             ->whereHas('offre', fn($q) => $q->where('entreprise_id', $entreprise->id))
             ->exists();
+    }
+
+    private function notifyMessageRecipient(Conversation $conversation, Utilisateur $sender): void
+    {
+        $recipient = $conversation->otherParticipant($sender);
+
+        if (!$recipient) {
+            return;
+        }
+
+        NotificationService::envoyer(
+            $recipient->id,
+            'message',
+            "Nouveau message de {$sender->prenom} {$sender->nom}."
+        );
     }
 }

@@ -33,6 +33,7 @@ Chaque role a son propre espace, ses permissions et ses vues dediees.
 - Liste des offres d'emploi actives.
 - Recherche et filtres par titre, categorie, type de contrat et ville.
 - Detail d'une offre.
+- Page de confidentialite accessible publiquement.
 - Inscription et connexion.
 - Mot de passe oublie avec lien email securise.
 
@@ -76,6 +77,7 @@ Chaque role a son propre espace, ses permissions et ses vues dediees.
 - Gestion des competences.
 - Lecture de toutes les conversations.
 - Envoi d'avertissements aux candidats et aux entreprises.
+- Module de signalements avec statut `nouveau`, `en_cours`, `traite` ou `rejete`.
 
 ## Systeme de matching
 
@@ -123,7 +125,9 @@ Regles principales :
 - L'admin peut avertir une entreprise ou un candidat.
 - L'admin peut consulter toutes les conversations.
 - L'entreprise peut signaler une conversation avec un candidat a l'admin.
+- Chaque signalement est stocke dans une table dediee et consultable depuis l'espace admin.
 - Le formulaire de message affiche des conseils pour rester professionnel.
+- Les nouveaux messages generent une notification pour le destinataire.
 
 ## Securite
 
@@ -354,8 +358,16 @@ tests/Feature                  Tests fonctionnels
 Les tests couvrent notamment :
 
 - disponibilite de l'accueil ;
+- authentification web et API ;
+- restrictions d'acces par role ;
+- pages publiques d'offres et filtres ;
+- parcours candidat : profil, competences, candidature, CV, suggestions et matching ;
+- parcours entreprise : offres, candidatures, CV, matching et suggestions ;
+- parcours admin : dashboard, categories, competences, signalements et blocage ;
 - autorisations de messagerie ;
 - blocage des conversations interdites ;
+- notifications ;
+- matching et suggestions ;
 - reset API desactive ;
 - login API interdit pour compte bloque ;
 - rejet des tokens API de comptes bloques ;

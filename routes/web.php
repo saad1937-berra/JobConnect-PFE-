@@ -29,6 +29,7 @@ Route::post('/mot-de-passe/update', [AuthWebController::class, 'resetPassword'])
 
 Route::get('/offres',          [OffreWebController::class, 'index'])->name('offres.index');
 Route::get('/offres/{id}',     [OffreWebController::class, 'show'])->name('offres.show');
+Route::view('/confidentialite', 'privacy')->name('privacy');
 
 
 Route::middleware(['auth', 'not_blocked'])->group(function () {
@@ -100,6 +101,8 @@ Route::middleware(['auth', 'not_blocked'])->group(function () {
 
         Route::get('/utilisateurs',                     [AdminWebController::class, 'utilisateurs'])->name('utilisateurs');
         Route::patch('/utilisateurs/{id}/bloquer',      [AdminWebController::class, 'bloquerUtilisateur'])->name('utilisateurs.bloquer');
+        Route::get('/signalements',                     [AdminWebController::class, 'signalements'])->name('signalements');
+        Route::patch('/signalements/{id}',              [AdminWebController::class, 'updateSignalement'])->name('signalements.update');
 
         Route::get('/offres',                           [AdminWebController::class, 'offres'])->name('offres');
         Route::delete('/offres/{id}',                   [AdminWebController::class, 'supprimerOffre'])->name('offres.supprimer');

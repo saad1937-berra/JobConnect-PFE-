@@ -15,10 +15,12 @@
                     <li><a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"><i class="fas fa-chart-pie"></i> Statistiques</a></li>
                     <li><a href="{{ route('admin.entreprises') }}" class="{{ request()->routeIs('admin.entreprises') ? 'active' : '' }}"><i class="fas fa-building"></i> Entreprises</a></li>
                     <li><a href="{{ route('admin.utilisateurs') }}" class="{{ request()->routeIs('admin.utilisateurs') ? 'active' : '' }}"><i class="fas fa-users"></i> Utilisateurs</a></li>
+                    <li><a href="{{ route('admin.signalements') }}" class="{{ request()->routeIs('admin.signalements*') ? 'active' : '' }}"><i class="fas fa-flag"></i> Signalements</a></li>
                     <li><a href="{{ route('admin.offres') }}" class="{{ request()->routeIs('admin.offres') ? 'active' : '' }}"><i class="fas fa-briefcase"></i> Offres</a></li>
                     <li><a href="{{ route('admin.categories') }}" class="{{ request()->routeIs('admin.categories') ? 'active' : '' }}"><i class="fas fa-tags"></i> Catégories</a></li>
                     <li><a href="{{ route('admin.competances') }}" class="{{ request()->routeIs('admin.competances') ? 'active' : '' }}"><i class="fas fa-star"></i> Compétences</a></li>
                     <li><a href="{{ route('messages.index') }}" class="{{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-comments"></i> Messages</a></li>
+                    <li><a href="{{ route('privacy') }}" class="{{ request()->routeIs('privacy') ? 'active' : '' }}"><i class="fas fa-shield-alt"></i> Confidentialite</a></li>
                 </ul>
             </div>
         </aside>

@@ -105,7 +105,7 @@
     </main>
 
     <footer>
-        <p>&copy; {{ date('Y') }} <a href="#">JobConnect</a> — Tous droits réservés</p>
+        <p>&copy; {{ date('Y') }} <a href="{{ route('home') }}">JobConnect</a> &mdash; <a href="{{ route('privacy') }}">Confidentialite</a></p>
     </footer>
 
     @stack('scripts')

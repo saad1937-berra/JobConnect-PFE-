@@ -122,6 +122,9 @@
                             <span class="ent-nav-badge">{{ $nonLues }}</span>
                         @endif
                     </a>
+                    <a href="{{ route('privacy') }}" class="ent-nav-link {{ request()->routeIs('privacy') ? 'active' : '' }}">
+                        <i class="fas fa-shield-alt"></i> Confidentialite
+                    </a>
                 </div>
             </nav>
         </aside>

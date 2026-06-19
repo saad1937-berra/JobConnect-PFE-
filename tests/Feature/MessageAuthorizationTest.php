@@ -138,6 +138,13 @@ class MessageAuthorizationTest extends TestCase
             'conversation_id' => $adminConversation->id,
             'sender_id' => $entreprise->id,
         ]);
+
+        $this->assertDatabaseHas('reports', [
+            'conversation_id' => $conversation->id,
+            'reporter_id' => $entreprise->id,
+            'reported_id' => $particulier->id,
+            'status' => 'nouveau',
+        ]);
     }
 
     public function test_particulier_still_cannot_message_another_particulier(): void
