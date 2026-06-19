@@ -50,7 +50,7 @@ class AuthWebController extends Controller
 
         Auth::login($user, $request->boolean('remember'));
 
-        return redirect()->intended($this->redirectBasedOnRole($user));
+        return redirect()->route('home');
     }
 
     public function register(Request $request)
@@ -78,7 +78,7 @@ class AuthWebController extends Controller
         }
 
         Auth::login($user);
-        return redirect($this->redirectBasedOnRole($user))->with('success', 'Bienvenue sur JobConnect !');
+        return redirect()->route('home')->with('success', 'Bienvenue sur JobConnect !');
     }
 
     public function logout(Request $request)
@@ -99,10 +99,9 @@ class AuthWebController extends Controller
 
         $reset = DB::table('password_reset_tokens')
             ->where('email', $request->email)
-            ->where('token', $request->token)
             ->first();
 
-        if (!$reset) {
+        if (!$reset || !Hash::check($request->token, $reset->token)) {
             return back()->withErrors(['email' => 'Le lien de réinitialisation est invalide ou expiré.']);
         }
 
@@ -124,11 +123,7 @@ class AuthWebController extends Controller
 
     private function redirectBasedOnRole(Utilisateur $user): string
     {
-        return match($user->role) {
-            'admin'      => route('admin.dashboard'),
-            'entreprise' => route('entreprise.dashboard'),
-            default      => route('particulier.profil'),
-        };
+        return route('home');
     }
     public function showForgotForm()
     {
@@ -146,7 +141,7 @@ class AuthWebController extends Controller
         // Stocker le token
         DB::table('password_reset_tokens')->insert([
             'email' => $request->email,
-            'token' => $token,
+            'token' => Hash::make($token),
             'created_at' => Carbon::now()
         ]);
         Mail::to($request->email)->send(new ResetPasswordMail($token, $request->email));

@@ -2,80 +2,52 @@
 
 namespace Database\Seeders;
 
+use App\Models\Entreprise;
+use App\Models\Utilisateur;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Utilisateur;
-use App\Models\Entreprise;
 
 class EntrepriseSeeder extends Seeder
 {
     public function run(): void
     {
         $entreprises = [
-            [
-                'email'       => 'rh@techmaroc.ma',
-                'nom_user'    => 'TechMaroc',
-                'nom'         => 'TechMaroc Solutions',
-                'secteur'     => 'Informatique & Tech',
-                'description' => 'Leader marocain des solutions digitales et du développement logiciel sur mesure.',
-                'adresse'     => 'Casablanca Technopark, Casablanca',
-                'site_web'    => 'https://techmaroc.ma',
-            ],
-            [
-                'email'       => 'rh@atlasgroup.ma',
-                'nom_user'    => 'AtlasGroup',
-                'nom'         => 'Atlas Group International',
-                'secteur'     => 'Finance & Comptabilité',
-                'description' => 'Groupe financier opérant dans le conseil, l\'audit et la gestion de patrimoine.',
-                'adresse'     => 'Twin Center, Casablanca',
-                'site_web'    => 'https://atlasgroup.ma',
-            ],
-            [
-                'email'       => 'emploi@sahradigital.ma',
-                'nom_user'    => 'SahraDigital',
-                'nom'         => 'Sahra Digital Agency',
-                'secteur'     => 'Marketing & Communication',
-                'description' => 'Agence digitale spécialisée en marketing de contenu, SEO et gestion des réseaux sociaux.',
-                'adresse'     => 'Rabat, Maroc',
-                'site_web'    => 'https://sahradigital.ma',
-            ],
-            [
-                'email'       => 'career@buildmaroc.ma',
-                'nom_user'    => 'BuildMaroc',
-                'nom'         => 'BuildMaroc Construction',
-                'secteur'     => 'Ingénierie & BTP',
-                'description' => 'Entreprise de construction et de génie civil avec 20 ans d\'expérience au Maroc.',
-                'adresse'     => 'Marrakech, Maroc',
-                'site_web'    => null,
-            ],
-            [
-                'email'       => 'jobs@innovate.ma',
-                'nom_user'    => 'InnovateMa',
-                'nom'         => 'Innovate Maroc',
-                'secteur'     => 'Informatique & Tech',
-                'description' => 'Startup marocaine spécialisée en intelligence artificielle et data science.',
-                'adresse'     => 'Casablanca, Maroc',
-                'site_web'    => 'https://innovate.ma',
-            ],
+            ['TechMaroc Solutions', 'Informatique & Tech', 'Casablanca Technopark, Casablanca', 'https://techmaroc.ma'],
+            ['Atlas Group International', 'Finance & Comptabilite', 'Twin Center, Casablanca', 'https://atlasgroup.ma'],
+            ['Sahra Digital Agency', 'Marketing & Communication', 'Rabat, Maroc', 'https://sahradigital.ma'],
+            ['BuildMaroc Construction', 'Ingenierie & BTP', 'Marrakech, Maroc', null],
+            ['Innovate Maroc', 'Informatique & Tech', 'Casablanca, Maroc', 'https://innovate.ma'],
+            ['Nour RH Consulting', 'Ressources Humaines', 'Tanger, Maroc', 'https://nourrh.ma'],
+            ['Maghreb Sales Partners', 'Commerce & Vente', 'Fes, Maroc', 'https://maghrebsales.ma'],
+            ['MedCare Services', 'Sante & Medical', 'Rabat, Maroc', 'https://medcare.ma'],
+            ['LegalTrust Morocco', 'Juridique', 'Casablanca, Maroc', 'https://legaltrust.ma'],
+            ['Academia Pro Formation', 'Enseignement & Formation', 'Agadir, Maroc', 'https://academiapro.ma'],
         ];
 
-        foreach ($entreprises as $data) {
-            $user = Utilisateur::create([
-                'email'  => $data['email'],
-                'pass'   => Hash::make('password123'),
-                'nom'    => $data['nom_user'],
-                'prenom' => 'RH',
-                'role'   => 'entreprise',
-            ]);
+        foreach ($entreprises as $index => [$nom, $secteur, $adresse, $siteWeb]) {
+            $number = $index + 1;
+            $slug = str_pad((string) $number, 2, '0', STR_PAD_LEFT);
 
-            Entreprise::create([
-                'utilisateur_id' => $user->id,
-                'nom'            => $data['nom'],
-                'secteur'        => $data['secteur'],
-                'description'    => $data['description'],
-                'adresse'        => $data['adresse'],
-                'site_web'       => $data['site_web'],
-            ]);
+            $user = Utilisateur::updateOrCreate(
+                ['email' => "entreprise{$slug}@jobconnect.test"],
+                [
+                    'pass'   => Hash::make('password123'),
+                    'nom'    => explode(' ', $nom)[0],
+                    'prenom' => 'RH',
+                    'role'   => 'entreprise',
+                ]
+            );
+
+            Entreprise::updateOrCreate(
+                ['utilisateur_id' => $user->id],
+                [
+                    'nom'         => $nom,
+                    'secteur'     => $secteur,
+                    'description' => "Entreprise marocaine specialisee en {$secteur}, avec des recrutements actifs sur JobConnect.",
+                    'adresse'     => $adresse,
+                    'site_web'    => $siteWeb,
+                ]
+            );
         }
     }
 }

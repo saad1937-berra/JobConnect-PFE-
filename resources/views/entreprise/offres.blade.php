@@ -53,6 +53,7 @@
                                 <a href="{{ route('offres.show', $offre->id) }}" class="ent-btn ent-btn-outline ent-btn-sm" title="Voir"><i class="fas fa-eye"></i></a>
                                 <a href="{{ route('entreprise.offres.edit', $offre->id) }}" class="ent-btn ent-btn-outline ent-btn-sm" title="Modifier"><i class="fas fa-edit"></i></a>
                                 <a href="{{ route('entreprise.offres.suggestions', $offre->id) }}" class="ent-btn ent-btn-outline ent-btn-sm" title="Suggestions"><i class="fas fa-magic"></i></a>
+                                <a href="{{ route('entreprise.offres.matching', $offre->id) }}" class="ent-btn ent-btn-outline ent-btn-sm" title="Matching"><i class="fas fa-chart-line"></i></a>
                                 <form method="POST" action="{{ route('entreprise.offres.supprimer', $offre->id) }}" onsubmit="return confirm('Supprimer ?')">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="ent-btn ent-btn-danger ent-btn-sm"><i class="fas fa-trash"></i></button>

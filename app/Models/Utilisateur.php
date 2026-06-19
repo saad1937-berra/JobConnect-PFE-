@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class Utilisateur extends Authenticatable
 {
-    use Notifiable;
+    use HasApiTokens, Notifiable;
 
     protected $table = 'utilisateurs';
 
@@ -47,6 +48,27 @@ class Utilisateur extends Authenticatable
     public function notifications()
     {
         return $this->hasMany(Notification::class, 'utilisateur_id');
+    }
+
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    public function conversations()
+    {
+        return Conversation::where('user_one_id', $this->id)
+            ->orWhere('user_two_id', $this->id);
+    }
+
+    public function unreadMessagesCount(): int
+    {
+        return Message::whereNull('read_at')
+            ->where('sender_id', '!=', $this->id)
+            ->whereHas('conversation', fn($q) => $q
+                ->where('user_one_id', $this->id)
+                ->orWhere('user_two_id', $this->id))
+            ->count();
     }
 
     // Helpers

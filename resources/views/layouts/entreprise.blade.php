@@ -25,6 +25,14 @@
         </a>
 
         <div class="ent-topbar-right">
+            <a href="{{ route('messages.index') }}" class="ent-icon-btn" style="position:relative;">
+                <i class="fas fa-comments"></i>
+                @php $messagesNonLus = auth()->user()->unreadMessagesCount(); @endphp
+                @if($messagesNonLus > 0)
+                    <span class="ent-notif-badge">{{ $messagesNonLus > 99 ? '99+' : $messagesNonLus }}</span>
+                @endif
+            </a>
+
             {{-- Notifications --}}
             <a href="{{ route('notifications.index') }}" class="ent-icon-btn" style="position:relative;">
                 <i class="fas fa-bell"></i>
@@ -92,6 +100,22 @@
                 </div>
 
                 <div class="ent-nav-section" style="margin-top:auto;padding-top:1rem;border-top:1px solid var(--ent-border);">
+                    @php $adminContact = \App\Models\Utilisateur::where('role', 'admin')->first(); @endphp
+                    @if($adminContact)
+                        <form method="POST" action="{{ route('messages.start') }}">
+                            @csrf
+                            <input type="hidden" name="user_id" value="{{ $adminContact->id }}">
+                            <button type="submit" class="ent-nav-link" style="width:100%;border:0;background:transparent;cursor:pointer;text-align:left;">
+                                <i class="fas fa-headset"></i> Contacter admin
+                            </button>
+                        </form>
+                    @endif
+                    <a href="{{ route('messages.index') }}" class="ent-nav-link {{ request()->routeIs('messages.*') ? 'active' : '' }}">
+                        <i class="fas fa-comments"></i> Messages
+                        @if($messagesNonLus > 0)
+                            <span class="ent-nav-badge">{{ $messagesNonLus }}</span>
+                        @endif
+                    </a>
                     <a href="{{ route('notifications.index') }}" class="ent-nav-link {{ request()->routeIs('notifications.index') ? 'active' : '' }}">
                         <i class="fas fa-bell"></i> Notifications
                         @if($nonLues > 0)

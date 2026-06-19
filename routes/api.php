@@ -9,16 +9,16 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OffreController;
 
 // ─── Routes publiques ───────────────────────────────────────────────
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login',    [AuthController::class, 'login']);
-Route::post('/reset-pass', [AuthController::class, 'resetPass']);
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
+Route::post('/login',    [AuthController::class, 'login'])->middleware('throttle:5,1');
+Route::post('/reset-pass', [AuthController::class, 'resetPass'])->middleware('throttle:3,1');
 
 // Offres publiques
 Route::get('/offres',      [OffreController::class, 'index']);
 Route::get('/offres/{id}', [OffreController::class, 'show']);
 
 // ─── Routes authentifiées ───────────────────────────────────────────
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'not_blocked', 'throttle:120,1'])->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
 

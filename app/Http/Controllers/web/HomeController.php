@@ -16,14 +16,6 @@ class HomeController extends Controller
 {
     public function index()
     {
-        if (auth()->check() && auth()->user()->isEntreprise()) {
-            return redirect()->route('entreprise.dashboard');
-        }
-
-        if (auth()->check() && auth()->user()->isAdmin()) {
-            return redirect()->route('admin.dashboard');
-        }
-
         // ── Candidat ────────────────────────────────────────────────
         if (auth()->check() && auth()->user()->isParticulier()) {
             $particulier = auth()->user()->particulier->load(['cv', 'competances', 'candidatures']);
@@ -89,13 +81,52 @@ class HomeController extends Controller
                 ->take(5)
                 ->get();
 
+            $offresPourMatching = $entreprise->offres()
+                ->where('statut', 'active')
+                ->with(['competances', 'categorie'])
+                ->latest()
+                ->take(4)
+                ->get();
+
+            $particuliers = Particulier::with(['utilisateur', 'competances', 'cv'])
+                ->whereHas('utilisateur', fn($q) => $q->where('role', 'particulier'))
+                ->get();
+
+            $candidatsMatches = $offresPourMatching
+                ->flatMap(function ($offre) use ($particuliers) {
+                    return MatchingService::candidatsPourOffre($offre, $particuliers)
+                        ->take(2)
+                        ->map(fn($particulier) => [
+                            'particulier' => $particulier,
+                            'offre' => $offre,
+                            'matching' => $particulier->matching,
+                        ]);
+                })
+                ->sortByDesc(fn($item) => $item['matching']['score'])
+                ->take(4)
+                ->values();
+
+            $candidatsSuggestions = $offresPourMatching
+                ->flatMap(function ($offre) {
+                    return SuggestionService::candidatsParOffre($offre, 2)
+                        ->map(fn($item) => [
+                            'particulier' => $item['particulier'],
+                            'offre' => $offre,
+                            'score' => $item['score'],
+                            'matched' => $item['matched'],
+                        ]);
+                })
+                ->sortByDesc('score')
+                ->take(4)
+                ->values();
+
             $stats = [
                 'total_offres'       => $entreprise->offres()->count(),
                 'offres_actives'     => $entreprise->offres()->where('statut', 'active')->count(),
                 'total_candidatures' => Candidature::whereHas('offre', fn($q) => $q->where('entreprise_id', $entreprise->id))->count(),
             ];
 
-            return view('home', compact('entreprise', 'offres', 'dernieresCandidatures', 'stats'));
+            return view('home', compact('entreprise', 'offres', 'dernieresCandidatures', 'stats', 'candidatsMatches', 'candidatsSuggestions'));
         }
 
         // ── Admin ────────────────────────────────────────────────────

@@ -57,6 +57,16 @@
                 @endif
 
                 <li>
+                    <a href="{{ route('messages.index') }}" style="position:relative;padding:0.5rem 0.75rem;">
+                        <i class="fas fa-comments"></i>
+                        @php $messagesNonLus = auth()->user()->unreadMessagesCount(); @endphp
+                        @if ($messagesNonLus > 0)
+                            <span class="nav-bell-badge">{{ $messagesNonLus > 99 ? '99+' : $messagesNonLus }}</span>
+                        @endif
+                    </a>
+                </li>
+
+                <li>
                     <a href="{{ route('notifications.index') }}" style="position:relative;padding:0.5rem 0.75rem;">
                         <i class="fas fa-bell"></i>
                         @php

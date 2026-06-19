@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('pass');
             $table->string('nom');
             $table->string('prenom');
-            $table->enum('role', ['admin', 'particulier', 'entreprise'])->default('particulier');
+            $table->enum('role', ['admin', 'particulier', 'entreprise', 'bloque'])->default('particulier');
             $table->timestamp('date_inscription')->useCurrent();
             $table->timestamps();
         });

@@ -21,6 +21,25 @@ class MatchingService
     public static function calculer(Particulier $particulier, Offre $offre): array
     {
         $criteres = [];
+        $cvText = self::cvText($particulier);
+
+        if ($cvText !== null) {
+            $criteres['competences'] = self::scoreCompetencesDepuisCv($cvText, $offre);
+            $criteres['mots_cles'] = self::scoreMotsClesDepuisCv($cvText, $offre);
+            $criteres['localisation'] = self::scaleCritere(self::scoreLocalisation($particulier, $offre), 15);
+            $criteres['niveau_etude'] = self::scaleCritere(self::scoreNiveauEtude($particulier, $offre), 10);
+            $criteres['profil'] = self::scaleCritere(self::scoreProfil($particulier), 5);
+
+            $total = array_sum(array_column($criteres, 'score'));
+
+            return [
+                'score'    => min(100, round($total)),
+                'niveau'   => self::niveau($total),
+                'couleur'  => self::couleur($total),
+                'source'   => 'cv',
+                'criteres' => $criteres,
+            ];
+        }
 
         // ── 1. Compétences pondérées (50 points) ─────────────────────
         $criteres['competences'] = self::scoreCompetences($particulier, $offre);
@@ -40,6 +59,7 @@ class MatchingService
             'score'    => min(100, round($total)),
             'niveau'   => self::niveau($total),
             'couleur'  => self::couleur($total),
+            'source'   => 'profil',
             'criteres' => $criteres,
         ];
     }
@@ -79,6 +99,139 @@ class MatchingService
     }
 
     // ── Critères ─────────────────────────────────────────────────────
+
+    private static function cvText(Particulier $particulier): ?string
+    {
+        if (!$particulier->relationLoaded('cv')) {
+            $particulier->load('cv');
+        }
+
+        $text = $particulier->cv
+            ->sortByDesc('created_at')
+            ->first()?->cv_text;
+
+        $text = is_string($text) ? trim($text) : '';
+
+        return $text !== '' ? $text : null;
+    }
+
+    private static function scoreCompetencesDepuisCv(string $cvText, Offre $offre): array
+    {
+        $maxPoints = 60;
+
+        if (!$offre->relationLoaded('competances')) {
+            $offre->load('competances');
+        }
+
+        $competances = $offre->competances;
+
+        if ($competances->isEmpty()) {
+            return [
+                'label'  => 'Competences CV',
+                'score'  => 20,
+                'max'    => $maxPoints,
+                'detail' => [],
+                'note'   => 'Aucune competence requise definie',
+                'icone'  => 'fa-file-lines',
+            ];
+        }
+
+        $cvText = self::normaliserTexte($cvText);
+        $matched = [];
+
+        foreach ($competances as $competance) {
+            if (self::contientTerme($cvText, $competance->nom)) {
+                $matched[] = $competance->nom;
+            }
+        }
+
+        $score = min($maxPoints, round((count($matched) / max(1, $competances->count())) * $maxPoints));
+
+        return [
+            'label'          => 'Competences CV',
+            'score'          => $score,
+            'max'            => $maxPoints,
+            'detail'         => $matched,
+            'detail_niveau'  => collect($matched)->map(fn($nom) => ['nom' => $nom, 'niveau' => 'Detecte dans le CV', 'poids' => 1])->all(),
+            'note'           => count($matched) . ' / ' . $competances->count() . ' competences detectees dans le CV',
+            'icone'          => 'fa-file-lines',
+        ];
+    }
+
+    private static function scoreMotsClesDepuisCv(string $cvText, Offre $offre): array
+    {
+        $maxPoints = 10;
+        $cvText = self::normaliserTexte($cvText);
+        $source = trim($offre->titre . ' ' . $offre->description . ' ' . ($offre->categorie->nom ?? ''));
+        $motsCles = self::motsCles($source);
+        $matched = [];
+
+        foreach ($motsCles as $mot) {
+            if (self::contientTerme($cvText, $mot)) {
+                $matched[] = $mot;
+            }
+        }
+
+        $score = empty($motsCles)
+            ? 0
+            : min($maxPoints, round((count($matched) / min(15, count($motsCles))) * $maxPoints));
+
+        return [
+            'label'  => 'Mots-cles CV',
+            'score'  => $score,
+            'max'    => $maxPoints,
+            'detail' => array_slice($matched, 0, 10),
+            'note'   => count($matched) . ' mot(s)-cle(s) de l\'offre detecte(s) dans le CV',
+            'icone'  => 'fa-magnifying-glass',
+        ];
+    }
+
+    private static function scaleCritere(array $critere, int $newMax): array
+    {
+        $oldMax = max(1, (int) ($critere['max'] ?? $newMax));
+        $oldScore = (float) ($critere['score'] ?? 0);
+
+        $critere['score'] = min($newMax, round(($oldScore / $oldMax) * $newMax));
+        $critere['max'] = $newMax;
+
+        return $critere;
+    }
+
+    private static function normaliserTexte(string $texte): string
+    {
+        $texte = mb_strtolower($texte);
+        $texte = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $texte) ?: $texte;
+        $texte = preg_replace('/[^a-z0-9+#.\s-]/', ' ', $texte) ?? $texte;
+        $texte = preg_replace('/\s+/', ' ', $texte) ?? $texte;
+
+        return trim($texte);
+    }
+
+    private static function contientTerme(string $texteNormalise, string $terme): bool
+    {
+        $terme = self::normaliserTexte($terme);
+
+        if ($terme === '') {
+            return false;
+        }
+
+        return str_contains($texteNormalise, $terme);
+    }
+
+    private static function motsCles(string $texte): array
+    {
+        $stopWords = [
+            'avec', 'dans', 'pour', 'nous', 'vous', 'des', 'les', 'une', 'aux', 'sur',
+            'and', 'the', 'de', 'du', 'la', 'le', 'un', 'en', 'a', 'et', 'ou', 'au',
+            'poste', 'profil', 'mission', 'missions', 'recherche', 'recherchons',
+        ];
+
+        $texte = self::normaliserTexte($texte);
+        $words = preg_split('/\s+/', $texte) ?: [];
+        $words = array_filter($words, fn($word) => mb_strlen($word) >= 3 && !in_array($word, $stopWords, true));
+
+        return array_values(array_unique(array_slice($words, 0, 40)));
+    }
 
     private static function scoreCompetences(Particulier $particulier, Offre $offre): array
     {

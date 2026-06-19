@@ -10,31 +10,38 @@ use App\Http\Controllers\Web\AdminWebController;
 use App\Http\Controllers\Web\NotificationWebController;
 use App\Http\Controllers\Web\MatchingController;
 use App\Http\Controllers\Web\SuggestionController;
+use App\Http\Controllers\Web\MessageController;
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Auth
 Route::get('/login',    [AuthWebController::class, 'showLogin'])->name('login');
-Route::post('/login',   [AuthWebController::class, 'login']);
+Route::post('/login',   [AuthWebController::class, 'login'])->middleware('throttle:5,1');
 Route::get('/register', [AuthWebController::class, 'showRegister'])->name('register');
-Route::post('/register',[AuthWebController::class, 'register']);
+Route::post('/register',[AuthWebController::class, 'register'])->middleware('throttle:5,1');
 Route::post('/logout',  [AuthWebController::class, 'logout'])->name('logout')->middleware('auth');
 
 Route::get('/mot-de-passe/oublie', [AuthWebController::class, 'showForgotForm'])->name('password.request');
-Route::post('/mot-de-passe/email',  [AuthWebController::class, 'sendResetLink'])->name('password.email');
+Route::post('/mot-de-passe/email',  [AuthWebController::class, 'sendResetLink'])->name('password.email')->middleware('throttle:3,1');
 Route::get('/mot-de-passe/reset/{token}', [AuthWebController::class, 'showResetForm'])->name('password.reset');
-Route::post('/mot-de-passe/update', [AuthWebController::class, 'resetPassword'])->name('password.update');
+Route::post('/mot-de-passe/update', [AuthWebController::class, 'resetPassword'])->name('password.update')->middleware('throttle:5,1');
 
 Route::get('/offres',          [OffreWebController::class, 'index'])->name('offres.index');
 Route::get('/offres/{id}',     [OffreWebController::class, 'show'])->name('offres.show');
 
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'not_blocked'])->group(function () {
 
     Route::get('/notifications',                [NotificationWebController::class, 'index'])->name('notifications.index');
     Route::patch('/notifications/{id}/lire',    [NotificationWebController::class, 'marquerLu'])->name('notifications.lire');
     Route::patch('/notifications/tout-lire',    [NotificationWebController::class, 'marquerToutLu'])->name('notifications.lire.tout');
+
+    Route::get('/messages',                     [MessageController::class, 'index'])->name('messages.index');
+    Route::post('/messages/start',              [MessageController::class, 'start'])->name('messages.start');
+    Route::get('/messages/{id}',                [MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages/{id}',               [MessageController::class, 'store'])->name('messages.store');
+    Route::post('/messages/{id}/report',        [MessageController::class, 'report'])->name('messages.report');
 
     // Routes pour les particuliers
 
@@ -44,6 +51,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/profil',           [ParticulierWebController::class, 'updateProfil'])->name('profil.update');
 
         Route::post('/cv',              [ParticulierWebController::class, 'uploadCV'])->name('cv.upload');
+        Route::get('/cv/{id}/download', [ParticulierWebController::class, 'telechargerCV'])->name('cv.download');
 
         Route::post('/competences',     [ParticulierWebController::class, 'ajouterCompetence'])->name('competence.ajouter');
         Route::delete('/competences/{id}', [ParticulierWebController::class, 'supprimerCompetence'])->name('competence.supprimer');

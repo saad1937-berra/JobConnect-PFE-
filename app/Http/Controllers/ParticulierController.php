@@ -7,6 +7,7 @@ use App\Models\Cv;
 use App\Models\Competance;
 use App\Models\Offre;
 use App\Models\Candidature;
+use App\Services\CvTextExtractor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -49,11 +50,12 @@ class ParticulierController extends Controller
 
         $particulier = $request->user()->particulier;
 
-        $path = $request->file('cv')->store("cvs/{$particulier->id}", 'public');
+        $path = $request->file('cv')->store("cvs/{$particulier->id}", 'local');
 
         $cv = Cv::create([
             'particulier_id' => $particulier->id,
             'cv_path'        => $path,
+            'cv_text'        => CvTextExtractor::fromStoragePath($path, 'local'),
         ]);
 
         return response()->json(['message' => 'CV uploadé avec succès.', 'cv' => $cv], 201);

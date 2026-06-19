@@ -12,8 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+        $middleware->append(\App\Http\Middleware\EnsureUserIsNotBlocked::class);
+
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
+            'not_blocked' => \App\Http\Middleware\EnsureUserIsNotBlocked::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

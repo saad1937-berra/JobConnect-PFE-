@@ -852,6 +852,87 @@
     line-height: 1.5;
 }
 
+/* Laravel pagination */
+nav[aria-label="Pagination Navigation"] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+    width: 100%;
+}
+
+nav[aria-label="Pagination Navigation"] > div:first-child {
+    display: none;
+}
+
+nav[aria-label="Pagination Navigation"] > div:last-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+}
+
+nav[aria-label="Pagination Navigation"] p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+nav[aria-label="Pagination Navigation"] span.relative {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    box-shadow: none !important;
+}
+
+nav[aria-label="Pagination Navigation"] a,
+nav[aria-label="Pagination Navigation"] span[aria-current="page"] > span,
+nav[aria-label="Pagination Navigation"] span[aria-disabled="true"] > span {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    color: #0f172a;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+}
+
+nav[aria-label="Pagination Navigation"] a:hover {
+    border-color: var(--ent-primary, #2563eb);
+    color: var(--ent-primary, #2563eb);
+}
+
+nav[aria-label="Pagination Navigation"] span[aria-current="page"] > span {
+    border-color: var(--ent-primary, #2563eb);
+    background: var(--ent-primary, #2563eb);
+    color: #fff;
+}
+
+nav[aria-label="Pagination Navigation"] span[aria-disabled="true"] > span {
+    color: #b8b8b8;
+    background: #f6f6f6;
+    cursor: not-allowed;
+}
+
+nav[aria-label="Pagination Navigation"] svg {
+    width: 16px !important;
+    height: 16px !important;
+    display: block;
+    flex: 0 0 16px;
+}
+
 /* ════════════════════════════════
    RESPONSIVE
    ════════════════════════════════ */

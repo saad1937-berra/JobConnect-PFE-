@@ -18,6 +18,7 @@
                     <li><a href="{{ route('admin.offres') }}" class="{{ request()->routeIs('admin.offres') ? 'active' : '' }}"><i class="fas fa-briefcase"></i> Offres</a></li>
                     <li><a href="{{ route('admin.categories') }}" class="{{ request()->routeIs('admin.categories') ? 'active' : '' }}"><i class="fas fa-tags"></i> Catégories</a></li>
                     <li><a href="{{ route('admin.competances') }}" class="{{ request()->routeIs('admin.competances') ? 'active' : '' }}"><i class="fas fa-star"></i> Compétences</a></li>
+                    <li><a href="{{ route('messages.index') }}" class="{{ request()->routeIs('messages.*') ? 'active' : '' }}"><i class="fas fa-comments"></i> Messages</a></li>
                 </ul>
             </div>
         </aside>

@@ -1,59 +1,383 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# JobConnect
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+JobConnect est une application web de recrutement developpee avec Laravel. Elle met en relation des candidats, des entreprises et un administrateur autour des offres d'emploi, des candidatures, du matching, des suggestions et d'une messagerie controlee.
 
-## About Laravel
+Le projet contient aussi une API protegee par Laravel Sanctum pour les principaux parcours candidat, entreprise et admin.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Technologies
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.2+
+- Laravel 12
+- Laravel Sanctum
+- MySQL / MariaDB avec XAMPP
+- Blade, CSS custom, Vite
+- PHPUnit
+- Poppler `pdftotext` pour l'extraction du texte des CV PDF
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Roles
 
-## Learning Laravel
+L'application gere quatre etats de compte :
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- `particulier` : candidat.
+- `entreprise` : recruteur ou entreprise.
+- `admin` : administrateur de la plateforme.
+- `bloque` : compte suspendu par l'admin.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Chaque role a son propre espace, ses permissions et ses vues dediees.
 
-## Laravel Sponsors
+## Fonctionnalites principales
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Espace public
 
-### Premium Partners
+- Accueil personnalise selon le role connecte.
+- Liste des offres d'emploi actives.
+- Recherche et filtres par titre, categorie, type de contrat et ville.
+- Detail d'une offre.
+- Inscription et connexion.
+- Mot de passe oublie avec lien email securise.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Candidat
 
-## Contributing
+- Gestion du profil : bio, telephone, adresse, date de naissance, niveau d'etude.
+- Upload photo de profil.
+- Upload de CV PDF, DOC ou DOCX.
+- Stockage prive des CV dans `storage/app/private`.
+- Lecture automatique du texte des CV pour ameliorer le matching.
+- Gestion des competences.
+- Candidature aux offres.
+- Suivi des candidatures et de leurs statuts.
+- Suggestions d'offres.
+- Matching avec score de compatibilite.
+- Messagerie avec les entreprises uniquement si les regles metier l'autorisent.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Entreprise
 
-## Code of Conduct
+- Dashboard avec statistiques.
+- Gestion du profil entreprise et du logo.
+- Creation, modification et suppression d'offres.
+- Gestion des candidatures recues.
+- Changement du statut d'une candidature : `en_attente`, `en_cours`, `acceptee`, `refusee`.
+- Telechargement securise du CV d'un candidat uniquement depuis une candidature appartenant a l'entreprise.
+- Suggestions de candidats pour une offre.
+- Matching des candidats avec score.
+- Contact direct des candidats.
+- Signalement d'un candidat a l'admin en cas d'abus ou de harcelement.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Admin
 
-## Security Vulnerabilities
+- Dashboard de statistiques globales.
+- Gestion des entreprises.
+- Validation des entreprises.
+- Gestion des utilisateurs.
+- Blocage d'un utilisateur.
+- Revocation automatique des tokens API lorsqu'un utilisateur est bloque.
+- Gestion des offres.
+- Gestion des categories.
+- Gestion des competences.
+- Lecture de toutes les conversations.
+- Envoi d'avertissements aux candidats et aux entreprises.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Systeme de matching
 
-## License
+Le matching compare les profils candidats avec les offres selon plusieurs informations :
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- competences du candidat ;
+- competences demandees par l'offre ;
+- niveau d'etude ;
+- localisation ;
+- contenu du CV lorsque celui-ci est lisible.
+
+Si un CV contient du texte exploitable, le systeme l'utilise dans le calcul. Si aucun CV lisible n'est disponible, l'application utilise la methode basee sur le profil et les competences deja renseignees.
+
+## Lecture des CV
+
+Le service `App\Services\CvTextExtractor` extrait le texte des CV :
+
+- `.docx` via `ZipArchive` ;
+- `.pdf` via `pdftotext` quand Poppler est installe ;
+- fallback basique pour certains PDF simples.
+
+Commande utile pour reextraire le texte des CV existants :
+
+```bash
+php artisan cv:extract-text --force
+```
+
+Sur Windows avec XAMPP, Poppler peut etre installe dans :
+
+```text
+C:\poppler\Library\bin\pdftotext.exe
+```
+
+## Messagerie
+
+La messagerie est volontairement limitee pour eviter les abus.
+
+Regles principales :
+
+- Une entreprise peut contacter un candidat.
+- Un candidat ne peut pas contacter une entreprise directement.
+- Un candidat peut repondre si l'entreprise l'a contacte en premier.
+- Un candidat peut contacter une entreprise si sa candidature a ete acceptee.
+- Une entreprise peut contacter l'admin.
+- L'admin peut avertir une entreprise ou un candidat.
+- L'admin peut consulter toutes les conversations.
+- L'entreprise peut signaler une conversation avec un candidat a l'admin.
+- Le formulaire de message affiche des conseils pour rester professionnel.
+
+## Securite
+
+Mesures deja mises en place :
+
+- Hash des mots de passe avec Laravel `Hash`.
+- CSRF sur les formulaires web.
+- Middleware `auth`, `role` et `not_blocked`.
+- Blocage des comptes suspendus sur le web et l'API.
+- Suppression des tokens Sanctum quand un compte est bloque.
+- Rate limiting sur login, inscription et reset password.
+- Reset password API direct desactive.
+- Tokens de reset password web stockes hashes en base.
+- CV stockes en prive, non exposes directement dans `/storage`.
+- Telechargement des CV via routes autorisees.
+- Headers HTTP de securite :
+  - `X-Frame-Options`
+  - `X-Content-Type-Options`
+  - `Referrer-Policy`
+  - `Permissions-Policy`
+
+Avant production, verifier aussi :
+
+- `APP_DEBUG=false`
+- HTTPS actif
+- mots de passe admin/seeders changes
+- base de donnees avec utilisateur dedie, pas `root` sans mot de passe
+- configuration email reelle
+- sauvegardes de base de donnees
+
+## Installation locale avec XAMPP
+
+### 1. Cloner ou placer le projet
+
+Exemple :
+
+```text
+C:\xampp\htdocs\PFE
+```
+
+### 2. Installer les dependances PHP
+
+```bash
+composer install
+```
+
+### 3. Installer les dependances front
+
+```bash
+npm install
+```
+
+### 4. Creer le fichier `.env`
+
+```bash
+copy .env.example .env
+```
+
+Adapter au minimum :
+
+```env
+APP_NAME=JobConnect
+APP_URL=http://localhost:8000
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=pfe
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+### 5. Generer la cle Laravel
+
+```bash
+php artisan key:generate
+```
+
+### 6. Lancer MySQL avec XAMPP
+
+Creer la base :
+
+```sql
+CREATE DATABASE pfe;
+```
+
+### 7. Lancer les migrations
+
+```bash
+php artisan migrate
+```
+
+### 8. Remplir la base avec les seeders
+
+Attention : le seeder principal vide les tables principales avant de recreer les donnees.
+
+```bash
+php artisan db:seed
+```
+
+Les seeders creent notamment :
+
+- 1 admin ;
+- 10 entreprises ;
+- 100 candidats ;
+- 1000 offres ;
+- categories et competences ;
+- relations de competences/offres/candidats.
+
+### 9. Lancer le serveur
+
+```bash
+php artisan serve --port=8000
+```
+
+Adresse :
+
+```text
+http://localhost:8000
+```
+
+## Comptes de test
+
+Admin :
+
+```text
+Email: admin@jobconnect.ma
+Mot de passe: admin1234
+```
+
+Candidats generes :
+
+```text
+Email: candidat001@jobconnect.test
+Mot de passe: password123
+```
+
+Entreprises generees :
+
+Les entreprises sont creees par `EntrepriseSeeder`. Consulter la base ou le seeder pour les emails exacts.
+
+Important : changer ces mots de passe avant toute mise en production.
+
+## Commandes utiles
+
+Lancer les tests :
+
+```bash
+php artisan test
+```
+
+Vider le cache des vues :
+
+```bash
+php artisan view:clear
+```
+
+Vider le cache de configuration :
+
+```bash
+php artisan config:clear
+```
+
+Relancer migrations + seeders :
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+Compiler le front :
+
+```bash
+npm run build
+```
+
+Lancer Vite en developpement :
+
+```bash
+npm run dev
+```
+
+## API
+
+Routes publiques :
+
+- `POST /api/register`
+- `POST /api/login`
+- `POST /api/reset-pass` : desactive volontairement pour securite
+- `GET /api/offres`
+- `GET /api/offres/{id}`
+
+Routes protegees par Sanctum :
+
+- `POST /api/logout`
+- notifications
+- profil candidat
+- CV candidat
+- candidatures candidat
+- offres entreprise
+- candidatures entreprise
+- statistiques admin
+- gestion admin
+
+Authentification API :
+
+```http
+Authorization: Bearer <token>
+```
+
+## Structure importante
+
+```text
+app/Http/Controllers/web       Controleurs web Blade
+app/Http/Controllers           Controleurs API
+app/Models                     Modeles Eloquent
+app/Services                   Services matching, suggestions, CV
+resources/views                Vues Blade
+public/css                     Styles de l'application
+database/migrations            Structure de la base
+database/seeders               Donnees de test
+routes/web.php                 Routes web
+routes/api.php                 Routes API
+routes/console.php             Commandes artisan custom
+tests/Feature                  Tests fonctionnels
+```
+
+## Tests actuels
+
+Les tests couvrent notamment :
+
+- disponibilite de l'accueil ;
+- autorisations de messagerie ;
+- blocage des conversations interdites ;
+- reset API desactive ;
+- login API interdit pour compte bloque ;
+- rejet des tokens API de comptes bloques ;
+- stockage prive des CV ;
+- interdiction de telecharger le CV d'un autre candidat.
+
+Commande :
+
+```bash
+php artisan test
+```
+
+## Notes de production
+
+Avant de publier le projet :
+
+- mettre `APP_ENV=production` ;
+- mettre `APP_DEBUG=false` ;
+- configurer HTTPS ;
+- configurer un vrai serveur mail ;
+- utiliser un utilisateur MySQL dedie ;
+- changer tous les comptes de test ;
+- executer `php artisan optimize` ;
+- verifier les permissions du dossier `storage` ;
+- sauvegarder regulierement la base de donnees et les fichiers prives.

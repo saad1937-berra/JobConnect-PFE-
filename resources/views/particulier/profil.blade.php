@@ -193,10 +193,10 @@
                         CV_{{ $cv->created_at->format('d-m-Y') }}.pdf
                     </div>
                     <div style="display:flex;gap:0.5rem;">
-                        <a href="{{ asset('storage/'.$cv->cv_path) }}" target="_blank" class="part-btn part-btn-outline part-btn-sm">
+                        <a href="{{ route('particulier.cv.download', $cv->id) }}" target="_blank" class="part-btn part-btn-outline part-btn-sm">
                             <i class="fas fa-eye"></i> Voir
                         </a>
-                        <a href="{{ asset('storage/'.$cv->cv_path) }}" download class="part-btn part-btn-black part-btn-sm">
+                        <a href="{{ route('particulier.cv.download', $cv->id) }}" class="part-btn part-btn-black part-btn-sm">
                             <i class="fas fa-download"></i>
                         </a>
                     </div>

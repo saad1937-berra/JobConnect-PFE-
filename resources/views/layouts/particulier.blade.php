@@ -40,9 +40,20 @@
             <a href="{{ route('particulier.candidatures') }}" class="part-nav-link {{ request()->routeIs('particulier.candidatures') ? 'active' : '' }}">
                 Mes candidatures
             </a>
+            <a href="{{ route('messages.index') }}" class="part-nav-link {{ request()->routeIs('messages.*') ? 'active' : '' }}">
+                Messages
+            </a>
         </nav>
 
         <div class="part-topbar-right">
+            <a href="{{ route('messages.index') }}" class="part-icon-btn" style="position:relative;">
+                <i class="fas fa-comments"></i>
+                @php $messagesNonLus = auth()->user()->unreadMessagesCount(); @endphp
+                @if($messagesNonLus > 0)
+                    <span class="part-notif-badge">{{ $messagesNonLus > 99 ? '99+' : $messagesNonLus }}</span>
+                @endif
+            </a>
+
             {{-- Notifications --}}
             <a href="{{ route('notifications.index') }}" class="part-icon-btn" style="position:relative;">
                 <i class="fas fa-bell"></i>

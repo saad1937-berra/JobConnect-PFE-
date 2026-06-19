@@ -23,7 +23,7 @@ class CategorieSeeder extends Seeder
         ];
 
         foreach ($categories as $cat) {
-            Categorie::create($cat);
+            Categorie::updateOrCreate(['nom' => $cat['nom']], $cat);
         }
     }
 }

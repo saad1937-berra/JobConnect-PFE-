@@ -36,14 +36,21 @@
                             {{ strtoupper(substr($candidature->particulier->utilisateur->prenom,0,1).substr($candidature->particulier->utilisateur->nom,0,1)) }}
                         </div>
                     @endif
-                    <div>
-                        <h2 style="font-family:var(--ent-font-head);font-size:1.25rem;font-weight:800;margin-bottom:0.2rem;">
-                            {{ $candidature->particulier->utilisateur->prenom }}
-                            {{ $candidature->particulier->utilisateur->nom }}
-                        </h2>
-                        <div style="font-size:0.85rem;color:var(--ent-muted);">{{ $candidature->particulier->utilisateur->email }}</div>
-                    </div>
-                </div>
+                     <div>
+                         <h2 style="font-family:var(--ent-font-head);font-size:1.25rem;font-weight:800;margin-bottom:0.2rem;">
+                             {{ $candidature->particulier->utilisateur->prenom }}
+                             {{ $candidature->particulier->utilisateur->nom }}
+                         </h2>
+                         <div style="font-size:0.85rem;color:var(--ent-muted);">{{ $candidature->particulier->utilisateur->email }}</div>
+                     </div>
+                    <form method="POST" action="{{ route('messages.start') }}" style="margin-left:auto;">
+                        @csrf
+                        <input type="hidden" name="user_id" value="{{ $candidature->particulier->utilisateur->id }}">
+                        <button type="submit" class="ent-btn ent-btn-primary ent-btn-sm">
+                            <i class="fas fa-comments"></i> Message
+                        </button>
+                    </form>
+                 </div>
 
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
                     <div>
@@ -110,10 +117,10 @@
                             CV_{{ $cv->created_at->format('d-m-Y') }}.pdf
                         </div>
                         <div style="display:flex;gap:0.5rem;">
-                            <a href="{{ asset('storage/'.$cv->cv_path) }}" target="_blank" class="ent-btn ent-btn-outline ent-btn-sm">
+                            <a href="{{ route('entreprise.candidature.cv', $candidature->id) }}" target="_blank" class="ent-btn ent-btn-outline ent-btn-sm">
                                 <i class="fas fa-eye"></i> Voir
                             </a>
-                            <a href="{{ asset('storage/'.$cv->cv_path) }}" download class="ent-btn ent-btn-secondary ent-btn-sm">
+                            <a href="{{ route('entreprise.candidature.cv', $candidature->id) }}" class="ent-btn ent-btn-secondary ent-btn-sm">
                                 <i class="fas fa-download"></i>
                             </a>
                         </div>

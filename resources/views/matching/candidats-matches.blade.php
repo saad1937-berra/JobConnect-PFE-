@@ -66,13 +66,15 @@
 
                     <div style="display:flex;flex-direction:column;gap:0.4rem;flex-shrink:0;">
                         @if($particulier->cv->count() > 0)
-                            <a href="{{ asset('storage/'.$particulier->cv->last()->cv_path) }}" target="_blank" class="ent-btn ent-btn-primary ent-btn-sm">
-                                <i class="fas fa-file-pdf"></i> CV
-                            </a>
+                            <span class="ent-badge ent-badge-gray"><i class="fas fa-lock"></i> CV prive</span>
                         @endif
-                        <a href="mailto:{{ $particulier->utilisateur->email }}" class="ent-btn ent-btn-outline ent-btn-sm">
-                            <i class="fas fa-envelope"></i> Contact
-                        </a>
+                        <form method="POST" action="{{ route('messages.start') }}">
+                            @csrf
+                            <input type="hidden" name="user_id" value="{{ $particulier->utilisateur->id }}">
+                            <button type="submit" class="ent-btn ent-btn-outline ent-btn-sm">
+                                <i class="fas fa-comments"></i> Message
+                            </button>
+                        </form>
                     </div>
                 </div>
             @endforeach

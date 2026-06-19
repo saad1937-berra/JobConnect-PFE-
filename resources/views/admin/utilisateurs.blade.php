@@ -67,6 +67,16 @@
                         </td>
                         <td>{{ $u->date_inscription->format('d/m/Y') }}</td>
                         <td>
+                            @if (in_array($u->role, ['particulier', 'entreprise'], true) && $u->id !== auth()->id())
+                                <form method="POST" action="{{ route('messages.start') }}" style="display:inline;">
+                                    @csrf
+                                    <input type="hidden" name="user_id" value="{{ $u->id }}">
+                                    <input type="hidden" name="body" value="Avertissement administratif : merci de respecter les regles de communication professionnelle de JobConnect.">
+                                    <button type="submit" class="btn btn-outline btn-sm">
+                                        <i class="fas fa-exclamation-triangle"></i> Avertir
+                                    </button>
+                                </form>
+                            @endif
                             @if ($u->role !== 'bloque' && $u->id !== auth()->id())
                                 <form method="POST" action="{{ route('admin.utilisateurs.bloquer', $u->id) }}"
                                     onsubmit="return confirm('Bloquer cet utilisateur ?')" style="display:inline;">

@@ -11,6 +11,7 @@ class Cv extends Model
     protected $fillable = [
         'particulier_id',
         'cv_path',
+        'cv_text',
     ];
 
     public function particulier()

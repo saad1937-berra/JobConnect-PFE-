@@ -1,7 +1,38 @@
-@extends(auth()->check() && auth()->user()->isParticulier() ? 'layouts.particulier' : 'layouts.app')
-@section('title', $offre->titre)
+@php
+    $user = auth()->user();
 
-@section(auth()->check() && auth()->user()->isParticulier() ? 'part-content' : 'content')
+    $layout = 'layouts.app';
+    $section = 'content';
+
+    if ($user?->isParticulier()) {
+        $layout = 'layouts.particulier';
+        $section = 'part-content';
+    } elseif ($user?->isEntreprise()) {
+        $layout = 'layouts.entreprise';
+        $section = 'ent-content';
+    } elseif ($user?->isAdmin()) {
+        $layout = 'layouts.admin';
+        $section = 'admin-content';
+    }
+@endphp
+
+@extends($layout)
+
+@section('title', "Offres d'emploi")
+
+@push('styles')
+    @auth
+        @if(auth()->user()->isEntreprise())
+            <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+            <link rel="stylesheet" href="{{ asset('css/public.css') }}">
+        @elseif(auth()->user()->isAdmin())
+            <link rel="stylesheet" href="{{ asset('css/public.css') }}">
+        @endif
+    @endauth
+@endpush
+
+@section($section)
+ 
     <div class="container offre-detail-page">
 
         <div class="breadcrumb">

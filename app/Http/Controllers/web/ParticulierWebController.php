@@ -7,8 +7,10 @@ use App\Models\Candidature;
 use App\Models\Competance;
 use App\Models\Offre;
 use App\Models\Cv;
+use App\Services\CvTextExtractor;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ParticulierWebController extends Controller
 {
@@ -81,14 +83,23 @@ class ParticulierWebController extends Controller
         ]);
 
         $particulier = auth()->user()->particulier;
-        $path = $request->file('cv')->store("cvs/{$particulier->id}", 'public');
+        $path = $request->file('cv')->store("cvs/{$particulier->id}", 'local');
 
         Cv::create([
             'particulier_id' => $particulier->id,
             'cv_path'        => $path,
+            'cv_text'        => CvTextExtractor::fromStoragePath($path, 'local'),
         ]);
 
         return back()->with('success', 'CV uploadé avec succès.');
+    }
+
+    public function telechargerCV($id)
+    {
+        $particulier = auth()->user()->particulier;
+        $cv = Cv::where('particulier_id', $particulier->id)->findOrFail($id);
+
+        return $this->downloadCvFile($cv);
     }
 
     public function ajouterCompetence(Request $request)
@@ -165,5 +176,20 @@ class ParticulierWebController extends Controller
         $particulier->update(['photo' => $path]);
 
         return back()->with('success', 'Photo de profil mise à jour.');
+    }
+    private function downloadCvFile(Cv $cv)
+    {
+        $extension = pathinfo($cv->cv_path, PATHINFO_EXTENSION) ?: 'pdf';
+        $filename = 'CV_' . $cv->created_at->format('Y-m-d') . '.' . $extension;
+
+        if (Storage::disk('local')->exists($cv->cv_path)) {
+            return Storage::disk('local')->download($cv->cv_path, $filename);
+        }
+
+        if (Storage::disk('public')->exists($cv->cv_path)) {
+            return Storage::disk('public')->download($cv->cv_path, $filename);
+        }
+
+        abort(404, 'CV introuvable.');
     }
 }

@@ -2,164 +2,185 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Entreprise;
 use App\Models\Categorie;
+use App\Models\Competance;
+use App\Models\Entreprise;
 use App\Models\Offre;
+use Illuminate\Database\Seeder;
 
 class OffreSeeder extends Seeder
 {
     public function run(): void
     {
-        $tech    = Categorie::where('nom', 'like', '%Informatique%')->first();
-        $finance = Categorie::where('nom', 'like', '%Finance%')->first();
-        $market  = Categorie::where('nom', 'like', '%Marketing%')->first();
-        $btp     = Categorie::where('nom', 'like', '%Ingénierie%')->first();
-        $design  = Categorie::where('nom', 'like', '%Design%')->first();
+        $entreprises = Entreprise::orderBy('id')->get();
+        $categories = Categorie::orderBy('id')->get();
+        $competances = Competance::orderBy('id')->get();
 
-        $techmaroc  = Entreprise::where('nom', 'like', '%TechMaroc%')->first();
-        $atlas      = Entreprise::where('nom', 'like', '%Atlas%')->first();
-        $sahra      = Entreprise::where('nom', 'like', '%Sahra%')->first();
-        $build      = Entreprise::where('nom', 'like', '%Build%')->first();
-        $innovate   = Entreprise::where('nom', 'like', '%Innovate%')->first();
+        if ($entreprises->isEmpty() || $categories->isEmpty()) {
+            return;
+        }
 
-        $offres = [
-            [
-                'entreprise_id'   => $techmaroc->id,
-                'categorie_id'    => $tech->id,
-                'titre'           => 'Développeur Full-Stack Laravel / Vue.js',
-                'description'     => "Nous recherchons un développeur Full-Stack passionné pour rejoindre notre équipe.\n\nMissions :\n- Développer et maintenir des applications web avec Laravel et Vue.js\n- Participer aux revues de code et aux rituels agile\n- Collaborer avec l'équipe design pour intégrer les maquettes\n- Optimiser les performances des applications existantes\n\nProfil recherché :\n- Maîtrise de Laravel 10+ et Vue.js 3\n- Bonne connaissance de MySQL et Redis\n- Expérience avec Git et les méthodologies agile\n- Autonomie et esprit d'équipe",
-                'contrat'         => 'CDI',
-                'localisation'    => 'Casablanca',
-                'niveau_etude'    => 'Bac+3',
-                'salaire'         => '8 000 – 12 000 MAD',
-                'duree'           => null,
-                'statut'          => 'active',
-                'date_expiration' => now()->addMonths(2),
+        $titresParCategorie = [
+            'Informatique' => [
+                'Developpeur Full-Stack Laravel Vue.js',
+                'Developpeur Backend PHP Laravel',
+                'Developpeur Mobile React Native',
+                'Data Scientist IA Machine Learning',
+                'Ingenieur DevOps Cloud Docker',
+                'Administrateur Systemes et Reseaux',
+                'Analyste Cybersecurite',
             ],
-            [
-                'entreprise_id'   => $techmaroc->id,
-                'categorie_id'    => $tech->id,
-                'titre'           => 'Développeur Mobile React Native',
-                'description'     => "TechMaroc Solutions recrute un développeur mobile pour renforcer son équipe.\n\nMissions :\n- Développer des applications mobiles iOS et Android avec React Native\n- Intégrer des APIs REST et GraphQL\n- Assurer la qualité du code via des tests unitaires\n\nProfil :\n- 2 ans d'expérience minimum en React Native\n- Connaissance de TypeScript\n- Expérience avec les stores App Store et Google Play",
-                'contrat'         => 'CDI',
-                'localisation'    => 'Casablanca',
-                'niveau_etude'    => 'Bac+3',
-                'salaire'         => '9 000 – 14 000 MAD',
-                'duree'           => null,
-                'statut'          => 'active',
-                'date_expiration' => now()->addMonths(3),
+            'Marketing' => [
+                'Chef de Projet Digital',
+                'Community Manager',
+                'Specialiste SEO SEA',
+                'Content Manager',
+                'Traffic Manager',
             ],
-            [
-                'entreprise_id'   => $innovate->id,
-                'categorie_id'    => $tech->id,
-                'titre'           => 'Data Scientist – IA & Machine Learning',
-                'description'     => "Innovate Maroc cherche un Data Scientist pour développer nos modèles d'IA.\n\nMissions :\n- Concevoir et entraîner des modèles de machine learning\n- Analyser de grands volumes de données\n- Collaborer avec les équipes produit\n\nProfil :\n- Maîtrise de Python (Pandas, Scikit-learn, TensorFlow)\n- Expérience en NLP et computer vision\n- Bac+5 en data science, statistiques ou informatique",
-                'contrat'         => 'CDI',
-                'localisation'    => 'Casablanca',
-                'niveau_etude'    => 'Bac+5',
-                'salaire'         => '12 000 – 18 000 MAD',
-                'duree'           => null,
-                'statut'          => 'active',
-                'date_expiration' => now()->addMonths(2),
+            'Finance' => [
+                'Auditeur Financier Senior',
+                'Controleur de Gestion',
+                'Comptable Confirme',
+                'Analyste Financier',
+                'Charge de Tresorerie',
             ],
-            [
-                'entreprise_id'   => $innovate->id,
-                'categorie_id'    => $tech->id,
-                'titre'           => 'Stage – Développeur Backend Node.js',
-                'description'     => "Stage de fin d'études chez Innovate Maroc.\n\nMissions :\n- Développer des APIs RESTful avec Node.js et Express\n- Travailler sur des projets réels avec l'équipe tech\n- Participer aux réunions agile\n\nProfil :\n- Étudiant Bac+4/5 en informatique\n- Connaissance de Node.js, Express, MongoDB\n- Curiosité et envie d'apprendre",
-                'contrat'         => 'Stage',
-                'localisation'    => 'Casablanca',
-                'niveau_etude'    => 'Bac+4',
-                'salaire'         => '2 500 MAD',
-                'duree'           => '6 mois',
-                'statut'          => 'active',
-                'date_expiration' => now()->addMonths(1),
+            'Ressources' => [
+                'Charge de Recrutement',
+                'Responsable RH',
+                'Gestionnaire Paie',
+                'Talent Acquisition Specialist',
             ],
-            [
-                'entreprise_id'   => $atlas->id,
-                'categorie_id'    => $finance->id,
-                'titre'           => 'Auditeur Financier Senior',
-                'description'     => "Atlas Group International recrute un auditeur financier expérimenté.\n\nMissions :\n- Réaliser des missions d'audit légal et contractuel\n- Analyser les états financiers et les contrôles internes\n- Rédiger les rapports d'audit\n- Encadrer les auditeurs juniors\n\nProfil :\n- 5 ans d'expérience en audit\n- Maîtrise des normes IFRS et ISA\n- DESA ou Master en finance/comptabilité",
-                'contrat'         => 'CDI',
-                'localisation'    => 'Casablanca',
-                'niveau_etude'    => 'Bac+5',
-                'salaire'         => '15 000 – 20 000 MAD',
-                'duree'           => null,
-                'statut'          => 'active',
-                'date_expiration' => now()->addMonths(2),
+            'Commerce' => [
+                'Business Developer',
+                'Account Manager',
+                'Commercial Terrain',
+                'Responsable Grands Comptes',
             ],
-            [
-                'entreprise_id'   => $atlas->id,
-                'categorie_id'    => $finance->id,
-                'titre'           => 'Contrôleur de Gestion',
-                'description'     => "Poste de contrôleur de gestion au sein du groupe Atlas.\n\nMissions :\n- Élaborer et suivre les budgets\n- Produire les tableaux de bord mensuels\n- Analyser les écarts et proposer des actions correctives\n\nProfil :\n- Formation Bac+5 en finance ou gestion\n- Maîtrise avancée d'Excel et Power BI\n- 3 ans d'expérience minimum",
-                'contrat'         => 'CDI',
-                'localisation'    => 'Casablanca',
-                'niveau_etude'    => 'Bac+5',
-                'salaire'         => '10 000 – 14 000 MAD',
-                'duree'           => null,
-                'statut'          => 'active',
-                'date_expiration' => now()->addMonths(3),
+            'Ingenierie' => [
+                'Ingenieur Genie Civil',
+                'Conducteur de Travaux',
+                'Ingenieur Methodes',
+                'Dessinateur Projeteur AutoCAD',
             ],
-            [
-                'entreprise_id'   => $sahra->id,
-                'categorie_id'    => $market->id,
-                'titre'           => 'Chef de Projet Digital',
-                'description'     => "Sahra Digital Agency recherche un chef de projet pour gérer ses clients.\n\nMissions :\n- Gérer les projets digitaux de A à Z\n- Coordonner les équipes créatives et techniques\n- Assurer la relation client\n- Suivre les KPIs et reporter les résultats\n\nProfil :\n- Expérience en gestion de projet digital\n- Connaissance des outils : Trello, Notion, Google Analytics\n- Excellentes compétences en communication",
-                'contrat'         => 'CDI',
-                'localisation'    => 'Rabat',
-                'niveau_etude'    => 'Bac+3',
-                'salaire'         => '7 000 – 10 000 MAD',
-                'duree'           => null,
-                'statut'          => 'active',
-                'date_expiration' => now()->addMonths(2),
+            'Sante' => [
+                'Infirmier Polyvalent',
+                'Delegue Medical',
+                'Pharmacien Assistant',
+                'Coordinateur Medical',
             ],
-            [
-                'entreprise_id'   => $sahra->id,
-                'categorie_id'    => $market->id,
-                'titre'           => 'Community Manager',
-                'description'     => "Poste de community manager pour gérer les réseaux sociaux de nos clients.\n\nMissions :\n- Créer et planifier du contenu engageant\n- Animer les communautés sur Instagram, Facebook, LinkedIn\n- Réaliser des reportings mensuels\n\nProfil :\n- Créatif, réactif et passionné par les réseaux sociaux\n- Maîtrise des outils de création (Canva, Adobe)\n- Bonne plume en français et arabe",
-                'contrat'         => 'CDD',
-                'localisation'    => 'Remote',
-                'niveau_etude'    => 'Bac+2',
-                'salaire'         => '4 000 – 6 000 MAD',
-                'duree'           => '12 mois',
-                'statut'          => 'active',
-                'date_expiration' => now()->addMonths(1),
+            'Juridique' => [
+                'Juriste Affaires',
+                'Assistant Juridique',
+                'Responsable Conformite',
+                'Legal Counsel',
             ],
-            [
-                'entreprise_id'   => $build->id,
-                'categorie_id'    => $btp->id,
-                'titre'           => 'Ingénieur Génie Civil',
-                'description'     => "BuildMaroc Construction recrute un ingénieur génie civil pour ses chantiers.\n\nMissions :\n- Superviser les travaux de construction\n- Vérifier la conformité des ouvrages\n- Coordonner les sous-traitants\n- Gérer les plannings et budgets de chantier\n\nProfil :\n- Diplôme d'ingénieur en génie civil\n- 3 ans d'expérience sur chantier\n- Maîtrise d'AutoCAD et MS Project",
-                'contrat'         => 'CDI',
-                'localisation'    => 'Marrakech',
-                'niveau_etude'    => 'Bac+5',
-                'salaire'         => '9 000 – 13 000 MAD',
-                'duree'           => null,
-                'statut'          => 'active',
-                'date_expiration' => now()->addMonths(2),
+            'Design' => [
+                'UX UI Designer',
+                'Graphiste Digital',
+                'Motion Designer',
+                'Directeur Artistique Junior',
             ],
-            [
-                'entreprise_id'   => $techmaroc->id,
-                'categorie_id'    => $design->id,
-                'titre'           => 'UX/UI Designer',
-                'description'     => "Nous cherchons un designer UX/UI créatif pour améliorer l'expérience de nos produits.\n\nMissions :\n- Concevoir des interfaces intuitives et esthétiques\n- Réaliser des wireframes, prototypes et maquettes\n- Mener des tests utilisateurs\n- Collaborer étroitement avec les développeurs\n\nProfil :\n- Maîtrise de Figma\n- Portfolio solide\n- Sensibilité au design et à l'expérience utilisateur",
-                'contrat'         => 'CDI',
-                'localisation'    => 'Casablanca',
-                'niveau_etude'    => 'Bac+3',
-                'salaire'         => '7 000 – 10 000 MAD',
-                'duree'           => null,
-                'statut'          => 'active',
-                'date_expiration' => now()->addMonths(3),
+            'Enseignement' => [
+                'Formateur Informatique',
+                'Professeur Anglais',
+                'Coach Soft Skills',
+                'Concepteur Pedagogique',
             ],
         ];
 
-        foreach ($offres as $offre) {
-            Offre::create(array_merge($offre, [
-                'date_publication' => now()->subDays(rand(1, 30)),
-            ]));
+        $contrats = ['CDI', 'CDD', 'Stage', 'Freelance', 'Alternance'];
+        $villes = ['Casablanca', 'Rabat', 'Marrakech', 'Tanger', 'Fes', 'Agadir', 'Meknes', 'Oujda', 'Kenitra', 'Remote'];
+        $niveaux = ['Bac', 'Bac+2', 'Bac+3', 'Bac+4', 'Bac+5', 'Doctorat'];
+        $statuts = ['active', 'active', 'active', 'active', 'brouillon', 'expiree'];
+
+        for ($i = 1; $i <= 1000; $i++) {
+            $entreprise = $entreprises[($i - 1) % $entreprises->count()];
+            $categorie = $categories[($i - 1) % $categories->count()];
+            $key = $this->categorieKey($categorie->nom);
+            $titres = $titresParCategorie[$key] ?? ['Consultant Polyvalent'];
+            $titre = $titres[($i - 1) % count($titres)] . ' #' . str_pad((string) $i, 4, '0', STR_PAD_LEFT);
+            $contrat = $contrats[$i % count($contrats)];
+            $localisation = $villes[$i % count($villes)];
+            $niveau = $niveaux[$i % count($niveaux)];
+            $statut = $statuts[$i % count($statuts)];
+
+            $offre = Offre::updateOrCreate(
+                ['titre' => $titre],
+                [
+                    'entreprise_id'     => $entreprise->id,
+                    'categorie_id'      => $categorie->id,
+                    'description'       => $this->description($titre, $categorie->nom, $contrat),
+                    'date_publication'  => now()->subDays($i % 60),
+                    'date_expiration'   => now()->addDays(15 + ($i % 90)),
+                    'contrat'           => $contrat,
+                    'duree'             => in_array($contrat, ['Stage', 'CDD', 'Alternance'], true) ? (3 + ($i % 18)) . ' mois' : null,
+                    'localisation'      => $localisation,
+                    'niveau_etude'      => $niveau,
+                    'statut'            => $statut,
+                    'salaire'           => $this->salaire($contrat, $i),
+                ]
+            );
+
+            if ($competances->isNotEmpty()) {
+                $offset = $i % max(1, $competances->count());
+                $ids = $competances
+                    ->slice($offset)
+                    ->merge($competances->slice(0, $offset))
+                    ->take(3 + ($i % 4))
+                    ->pluck('id')
+                    ->all();
+
+                $offre->competances()->sync($ids);
+            }
         }
+    }
+
+    private function categorieKey(string $nom): string
+    {
+        return match (true) {
+            str_contains($nom, 'Informatique') => 'Informatique',
+            str_contains($nom, 'Marketing') => 'Marketing',
+            str_contains($nom, 'Finance') => 'Finance',
+            str_contains($nom, 'Ressources') => 'Ressources',
+            str_contains($nom, 'Commerce') => 'Commerce',
+            str_contains($nom, 'Ing') => 'Ingenierie',
+            str_contains($nom, 'Sant') => 'Sante',
+            str_contains($nom, 'Juridique') => 'Juridique',
+            str_contains($nom, 'Design') => 'Design',
+            str_contains($nom, 'Enseignement') => 'Enseignement',
+            default => 'Autre',
+        };
+    }
+
+    private function description(string $titre, string $categorie, string $contrat): string
+    {
+        return "{$titre}\n\n"
+            . "Nous recherchons un profil motive pour rejoindre une equipe dynamique dans le domaine {$categorie}.\n\n"
+            . "Missions :\n"
+            . "- Participer aux projets de l'entreprise\n"
+            . "- Collaborer avec les equipes internes\n"
+            . "- Produire des livrables de qualite\n"
+            . "- Proposer des ameliorations continues\n\n"
+            . "Profil recherche :\n"
+            . "- Formation adaptee au poste\n"
+            . "- Bon relationnel et autonomie\n"
+            . "- Maitrise des outils du metier\n"
+            . "- Contrat propose : {$contrat}";
+    }
+
+    private function salaire(string $contrat, int $index): ?string
+    {
+        if ($contrat === 'Stage') {
+            return (2000 + (($index % 6) * 500)) . ' MAD';
+        }
+
+        if ($contrat === 'Freelance') {
+            return (500 + (($index % 10) * 100)) . ' MAD / jour';
+        }
+
+        $min = 4000 + (($index % 10) * 1000);
+        $max = $min + 4000;
+
+        return number_format($min, 0, ',', ' ') . ' - ' . number_format($max, 0, ',', ' ') . ' MAD';
     }
 }

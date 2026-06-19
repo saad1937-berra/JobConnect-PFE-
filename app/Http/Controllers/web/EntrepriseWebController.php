@@ -225,7 +225,18 @@ class EntrepriseWebController extends Controller
             return back()->with('error', 'Aucun CV disponible pour ce candidat.');
         }
 
-        return Storage::disk('public')->download($cv->cv_path);
+        $extension = pathinfo($cv->cv_path, PATHINFO_EXTENSION) ?: 'pdf';
+        $filename = 'CV_' . $cv->created_at->format('Y-m-d') . '.' . $extension;
+
+        if (Storage::disk('local')->exists($cv->cv_path)) {
+            return Storage::disk('local')->download($cv->cv_path, $filename);
+        }
+
+        if (Storage::disk('public')->exists($cv->cv_path)) {
+            return Storage::disk('public')->download($cv->cv_path, $filename);
+        }
+
+        return back()->with('error', 'CV introuvable.');
     }
 
     public function uploadLogo(Request $request)

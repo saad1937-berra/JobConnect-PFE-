@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Utilisateur;
-use App\Models\Particulier;
 use App\Models\Entreprise;
+use App\Models\Particulier;
+use App\Models\Utilisateur;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
@@ -39,7 +38,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'message' => 'Inscription réussie.',
+            'message' => 'Inscription reussie.',
             'user'    => $utilisateur,
         ], 201);
     }
@@ -57,10 +56,14 @@ class AuthController extends Controller
             return response()->json(['message' => 'Identifiants incorrects.'], 401);
         }
 
+        if ($utilisateur->role === 'bloque') {
+            return response()->json(['message' => 'Compte suspendu.'], 403);
+        }
+
         $token = $utilisateur->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message'      => 'Connexion réussie.',
+            'message'      => 'Connexion reussie.',
             'access_token' => $token,
             'token_type'   => 'Bearer',
             'user'         => $utilisateur,
@@ -71,19 +74,13 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Déconnexion réussie.']);
+        return response()->json(['message' => 'Deconnexion reussie.']);
     }
 
     public function resetPass(Request $request)
     {
-        $request->validate([
-            'email'        => 'required|email|exists:utilisateurs,email',
-            'pass'         => 'required|min:8|confirmed',
-        ]);
-
-        $utilisateur = Utilisateur::where('email', $request->email)->firstOrFail();
-        $utilisateur->update(['pass' => Hash::make($request->pass)]);
-
-        return response()->json(['message' => 'Mot de passe réinitialisé avec succès.']);
+        return response()->json([
+            'message' => 'La reinitialisation API directe est desactivee. Utilisez le flux email securise.',
+        ], 410);
     }
 }

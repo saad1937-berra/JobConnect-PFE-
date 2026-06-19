@@ -41,7 +41,7 @@ class CompetanceSeeder extends Seeder
         ];
 
         foreach ($competances as $comp) {
-            Competance::create($comp);
+            Competance::updateOrCreate(['nom' => $comp['nom']], $comp);
         }
     }
 }

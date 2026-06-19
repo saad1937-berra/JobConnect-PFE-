@@ -59,6 +59,14 @@
                                         <i class="fas fa-ban"></i> Bloquer
                                     </button>
                                 </form>
+                                <form method="POST" action="{{ route('messages.start') }}" style="display:inline;">
+                                    @csrf
+                                    <input type="hidden" name="user_id" value="{{ $ent->utilisateur_id }}">
+                                    <input type="hidden" name="body" value="Avertissement administratif : merci de respecter les regles de communication professionnelle de JobConnect.">
+                                    <button type="submit" class="btn btn-outline btn-sm">
+                                        <i class="fas fa-exclamation-triangle"></i> Avertir
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>

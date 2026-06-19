@@ -403,10 +403,54 @@
         tbody tr:hover {
             background: #fafafa;
         }
+
+        .home-page-entreprise .hero {
+            background: var(--ent-green, #1a4d3a);
+        }
+
+        .home-page-entreprise .hero::before {
+            background: radial-gradient(ellipse at 70% 50%, rgba(22, 160, 133, 0.25) 0%, transparent 60%);
+        }
+
+        .home-page-entreprise .hero-tag,
+        .home-page-entreprise .hero h1 em {
+            color: var(--ent-accent, #16a085);
+        }
+
+        .home-page-entreprise .btn-primary {
+            background: var(--ent-green, #1a4d3a);
+        }
+
+        .home-page-admin .hero {
+            background: #111827;
+        }
+
+        .home-page-admin .hero::before {
+            background: radial-gradient(ellipse at 70% 50%, rgba(30, 111, 232, 0.22) 0%, transparent 60%);
+        }
+
+        .home-page-admin .hero-tag,
+        .home-page-admin .hero h1 em {
+            color: #60a5fa;
+        }
+
+        .home-page-admin .btn-primary {
+            background: #1e40af;
+        }
+
+        .home-page-particulier .hero {
+            background: #151515;
+        }
+
+        .home-page-particulier .hero-tag,
+        .home-page-particulier .hero h1 em {
+            color: var(--accent, #e84c1e);
+        }
     </style>
 @endpush
 
 @section('content')
+    <div class="home-page home-page-{{ auth()->check() ? auth()->user()->role : 'guest' }}">
 
     @auth
 
@@ -783,6 +827,9 @@
                                             <a href="{{ route('entreprise.offres.suggestions', $offre->id) }}"
                                                 class="btn btn-outline btn-sm" title="Candidats suggérés"><i
                                                     class="fas fa-magic"></i></a>
+                                            <a href="{{ route('entreprise.offres.matching', $offre->id) }}"
+                                                class="btn btn-outline btn-sm" title="Matching"><i
+                                                    class="fas fa-chart-line"></i></a>
                                             <form method="POST"
                                                 action="{{ route('entreprise.offres.supprimer', $offre->id) }}"
                                                 onsubmit="return confirm('Supprimer ?')">
@@ -801,6 +848,145 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+
+                <div style="margin-bottom:2rem;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-percentage" style="color:var(--accent);margin-right:0.5rem;"></i> Matching</h2>
+                        <a href="{{ route('entreprise.offres') }}" class="btn btn-outline btn-sm">Voir mes offres</a>
+                    </div>
+
+                    <div class="offres-grid">
+                        @forelse($candidatsMatches ?? [] as $item)
+                            @php
+                                $particulier = $item['particulier'];
+                                $offre = $item['offre'];
+                                $matching = $item['matching'];
+                                $score = $matching['score'];
+                                $couleur = $matching['couleur'];
+                                $matched = $matching['criteres']['competences']['detail'] ?? [];
+                                $initiales = strtoupper(substr($particulier->utilisateur->prenom, 0, 1) . substr($particulier->utilisateur->nom, 0, 1));
+                            @endphp
+
+                            <a href="{{ route('entreprise.offres.matching', $offre->id) }}" class="offre-card"
+                                style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start;">
+                                <div class="offre-card-header" style="margin-bottom:0;">
+                                    <div class="company-logo">{{ $initiales }}</div>
+                                    <div>
+                                        <h3>{{ $particulier->utilisateur->prenom }} {{ $particulier->utilisateur->nom }}</h3>
+                                        <div class="company-name">{{ $offre->titre }}</div>
+                                    </div>
+                                </div>
+
+                                <div style="text-align:right;min-width:56px;">
+                                    <div style="font-family:var(--font-head);font-size:1.25rem;font-weight:800;color:{{ $couleur }};">
+                                        {{ $score }}%
+                                    </div>
+                                    <div style="height:5px;background:var(--border);border-radius:3px;overflow:hidden;">
+                                        <div style="width:{{ $score }}%;height:5px;border-radius:3px;background:{{ $couleur }};"></div>
+                                    </div>
+                                </div>
+
+                                <div style="grid-column:1/-1;">
+                                    @if(count($matched) > 0)
+                                        <div style="display:flex;gap:0.35rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+                                            @foreach(array_slice($matched, 0, 3) as $comp)
+                                                <span style="background:#d4edda;color:#155724;padding:0.18rem 0.55rem;border-radius:5px;font-size:0.72rem;font-weight:600;">
+                                                    <i class="fas fa-check"></i> {{ $comp }}
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                    <div class="offre-meta">
+                                        @if($particulier->adresse)
+                                            <span class="meta-chip"><i class="fas fa-map-marker-alt"></i> {{ $particulier->adresse }}</span>
+                                        @endif
+                                        @if($particulier->niveau_etude)
+                                            <span class="badge badge-blue">{{ $particulier->niveau_etude }}</span>
+                                        @endif
+                                        @if($particulier->cv->count() > 0)
+                                            <span class="meta-chip"><i class="fas fa-file-pdf"></i> CV disponible</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </a>
+                        @empty
+                            <div class="table-card" style="grid-column:1/-1;padding:2rem;text-align:center;color:var(--muted);">
+                                <i class="fas fa-users" style="font-size:2rem;margin-bottom:0.75rem;display:block;"></i>
+                                <strong style="display:block;color:var(--ink);margin-bottom:0.35rem;">Aucun matching disponible</strong>
+                                <p>Ajoutez des competences aux offres et aux profils candidats pour calculer les meilleurs matchs.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                <div style="margin-bottom:2rem;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-magic" style="color:var(--accent);margin-right:0.5rem;"></i> Suggestions</h2>
+                        <a href="{{ route('entreprise.offres') }}" class="btn btn-outline btn-sm">Voir mes offres</a>
+                    </div>
+
+                    <div class="offres-grid">
+                        @forelse($candidatsSuggestions ?? [] as $item)
+                            @php
+                                $particulier = $item['particulier'];
+                                $offre = $item['offre'];
+                                $matched = $item['matched'];
+                                $initiales = strtoupper(substr($particulier->utilisateur->prenom, 0, 1) . substr($particulier->utilisateur->nom, 0, 1));
+                            @endphp
+
+                            <a href="{{ route('entreprise.offres.suggestions', $offre->id) }}" class="offre-card"
+                                style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start;border-color:rgba(232,76,30,0.25);">
+                                <div class="offre-card-header" style="margin-bottom:0;">
+                                    <div class="company-logo">{{ $initiales }}</div>
+                                    <div>
+                                        <h3>{{ $particulier->utilisateur->prenom }} {{ $particulier->utilisateur->nom }}</h3>
+                                        <div class="company-name">{{ $offre->titre }}</div>
+                                    </div>
+                                </div>
+
+                                <div style="text-align:right;min-width:72px;">
+                                    <div style="font-family:var(--font-head);font-size:1.25rem;font-weight:800;color:var(--accent);">
+                                        {{ $item['score'] }}
+                                    </div>
+                                    <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;font-weight:700;">
+                                        match{{ $item['score'] > 1 ? 's' : '' }}
+                                    </div>
+                                </div>
+
+                                <div style="grid-column:1/-1;">
+                                    @if(count($matched) > 0)
+                                        <div style="display:flex;gap:0.35rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+                                            @foreach(array_slice($matched, 0, 3) as $comp)
+                                                <span style="background:#d4edda;color:#155724;padding:0.18rem 0.55rem;border-radius:5px;font-size:0.72rem;font-weight:600;">
+                                                    <i class="fas fa-check"></i> {{ $comp }}
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                    <div class="offre-meta">
+                                        @if($particulier->adresse)
+                                            <span class="meta-chip"><i class="fas fa-map-marker-alt"></i> {{ $particulier->adresse }}</span>
+                                        @endif
+                                        @if($particulier->niveau_etude)
+                                            <span class="badge badge-blue">{{ $particulier->niveau_etude }}</span>
+                                        @endif
+                                        @if($particulier->cv->count() > 0)
+                                            <span class="meta-chip"><i class="fas fa-file-pdf"></i> CV disponible</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </a>
+                        @empty
+                            <div class="table-card" style="grid-column:1/-1;padding:2rem;text-align:center;color:var(--muted);">
+                                <i class="fas fa-magic" style="font-size:2rem;margin-bottom:0.75rem;display:block;"></i>
+                                <strong style="display:block;color:var(--ink);margin-bottom:0.35rem;">Aucune suggestion disponible</strong>
+                                <p>Ajoutez des competences aux offres pour recevoir des candidats suggérés.</p>
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
 
                 <div class="table-card">
@@ -1029,5 +1215,7 @@
             </div>
         </div>
     @endguest
+
+    </div>
 
 @endsection
