@@ -28,4 +28,9 @@ class Entreprise extends Model
     {
         return $this->hasMany(Offre::class, 'entreprise_id');
     }
+
+    public function scopeActiveAccount($query)
+    {
+        return $query->whereHas('utilisateur', fn($q) => $q->where('role', 'entreprise'));
+    }
 }

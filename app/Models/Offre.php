@@ -59,7 +59,9 @@ class Offre extends Model
     // Scopes
     public function scopeActive($query)
     {
-        return $query->where('statut', 'active');
+        return $query
+            ->where('statut', 'active')
+            ->whereHas('entreprise.utilisateur', fn($q) => $q->where('role', 'entreprise'));
     }
 
     public function scopeByCategorie($query, $categorieId)

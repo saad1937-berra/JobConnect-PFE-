@@ -66,6 +66,16 @@
                         {{ $cand->date->format('d/m/Y') }}
                     </div>
                     <span class="part-badge part-badge-{{ $bc }}">{{ $bl }}</span>
+
+                    @if($cand->statut === 'acceptee' && $cand->offre->entreprise?->utilisateur_id)
+                        <form method="POST" action="{{ route('messages.start') }}" style="margin-top:0.75rem;">
+                            @csrf
+                            <input type="hidden" name="user_id" value="{{ $cand->offre->entreprise->utilisateur_id }}">
+                            <button type="submit" class="part-btn part-btn-primary" style="padding:0.55rem 0.8rem;font-size:0.78rem;white-space:nowrap;">
+                                <i class="fas fa-comments"></i> Contacter l'entreprise
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </div>
         @empty

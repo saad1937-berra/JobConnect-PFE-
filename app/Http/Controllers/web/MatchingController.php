@@ -15,7 +15,7 @@ class MatchingController extends Controller
     public function scoreOffre($offreId)
     {
         $particulier = auth()->user()->particulier->load(['competances', 'cv', 'candidatures']);
-        $offre       = Offre::with(['entreprise', 'categorie'])->findOrFail($offreId);
+        $offre       = Offre::active()->with(['entreprise', 'categorie'])->findOrFail($offreId);
         $matching    = MatchingService::calculer($particulier, $offre);
 
         return view('matching.score-offre', compact('particulier', 'offre', 'matching'));

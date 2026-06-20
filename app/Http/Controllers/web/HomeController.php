@@ -27,6 +27,7 @@ class HomeController extends Controller
                 ->get();
 
             $dernieresCandidatures = $particulier->candidatures()
+                ->whereHas('offre.entreprise.utilisateur', fn($q) => $q->where('role', 'entreprise'))
                 ->with('offre.entreprise')
                 ->latest()
                 ->take(4)
@@ -144,11 +145,11 @@ class HomeController extends Controller
 
         // ── Visiteur ─────────────────────────────────────────────────
         $offres     = Offre::active()->with(['entreprise', 'categorie'])->latest('date_publication')->take(6)->get();
-        $categories = Categorie::withCount(['offres' => fn($q) => $q->where('statut', 'active')])->get();
+        $categories = Categorie::withCount(['offres' => fn($q) => $q->active()])->get();
 
         $stats = [
-            'offres'       => Offre::where('statut', 'active')->count(),
-            'entreprises'  => Entreprise::count(),
+            'offres'       => Offre::active()->count(),
+            'entreprises'  => Entreprise::activeAccount()->count(),
             'particuliers' => Particulier::count(),
         ];
 

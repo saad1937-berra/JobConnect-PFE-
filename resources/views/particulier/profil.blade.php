@@ -184,6 +184,9 @@
         <div class="part-section-card">
             <div class="part-section-header">
                 <h3><i class="fas fa-file-pdf" style="color:var(--part-yellow);background:var(--part-black);padding:0.3rem 0.4rem;border-radius:4px;font-size:0.8rem;"></i> Mes CV</h3>
+                <a href="{{ route('particulier.cv.generate') }}" target="_blank" class="part-btn part-btn-primary part-btn-sm">
+                    <i class="fas fa-file-alt"></i> Generer mon CV
+                </a>
             </div>
 
             @forelse($particulier->cv as $cv)

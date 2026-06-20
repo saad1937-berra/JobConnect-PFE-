@@ -139,4 +139,33 @@ class AdminWorkflowTest extends TestCase
         ]);
         $this->assertDatabaseCount('personal_access_tokens', 0);
     }
+
+    public function test_admin_can_unblock_particulier_and_entreprise(): void
+    {
+        $admin = $this->makeAdmin();
+        $particulier = $this->makeParticulier([], ['role' => 'bloque']);
+        $entreprise = $this->makeEntreprise([], ['role' => 'bloque']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.utilisateurs', ['role' => 'bloque']))
+            ->assertOk()
+            ->assertSee('Debloquer');
+
+        $this->actingAs($admin)
+            ->patch(route('admin.utilisateurs.debloquer', $particulier->utilisateur_id))
+            ->assertRedirect();
+
+        $this->actingAs($admin)
+            ->patch(route('admin.utilisateurs.debloquer', $entreprise->utilisateur_id))
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('utilisateurs', [
+            'id' => $particulier->utilisateur_id,
+            'role' => 'particulier',
+        ]);
+        $this->assertDatabaseHas('utilisateurs', [
+            'id' => $entreprise->utilisateur_id,
+            'role' => 'entreprise',
+        ]);
+    }
 }

@@ -52,6 +52,7 @@ Route::middleware(['auth', 'not_blocked'])->group(function () {
         Route::put('/profil',           [ParticulierWebController::class, 'updateProfil'])->name('profil.update');
 
         Route::post('/cv',              [ParticulierWebController::class, 'uploadCV'])->name('cv.upload');
+        Route::get('/cv/generer',       [ParticulierWebController::class, 'genererCv'])->name('cv.generate');
         Route::get('/cv/{id}/download', [ParticulierWebController::class, 'telechargerCV'])->name('cv.download');
 
         Route::post('/competences',     [ParticulierWebController::class, 'ajouterCompetence'])->name('competence.ajouter');
@@ -101,6 +102,7 @@ Route::middleware(['auth', 'not_blocked'])->group(function () {
 
         Route::get('/utilisateurs',                     [AdminWebController::class, 'utilisateurs'])->name('utilisateurs');
         Route::patch('/utilisateurs/{id}/bloquer',      [AdminWebController::class, 'bloquerUtilisateur'])->name('utilisateurs.bloquer');
+        Route::patch('/utilisateurs/{id}/debloquer',    [AdminWebController::class, 'debloquerUtilisateur'])->name('utilisateurs.debloquer');
         Route::get('/signalements',                     [AdminWebController::class, 'signalements'])->name('signalements');
         Route::patch('/signalements/{id}',              [AdminWebController::class, 'updateSignalement'])->name('signalements.update');
 

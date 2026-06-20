@@ -106,9 +106,10 @@ class ParticulierController extends Controller
         ]);
 
         $particulier = $request->user()->particulier;
+        $offre = Offre::active()->findOrFail($request->offre_id);
 
         $existe = Candidature::where('particulier_id', $particulier->id)
-                             ->where('offre_id', $request->offre_id)
+                             ->where('offre_id', $offre->id)
                              ->exists();
 
         if ($existe) {
@@ -117,7 +118,7 @@ class ParticulierController extends Controller
 
         $candidature = Candidature::create([
             'particulier_id' => $particulier->id,
-            'offre_id'       => $request->offre_id,
+            'offre_id'       => $offre->id,
             'statut'         => 'en_attente',
         ]);
 
@@ -130,6 +131,7 @@ class ParticulierController extends Controller
         $particulier = $request->user()->particulier;
 
         $candidatures = $particulier->candidatures()
+            ->whereHas('offre.entreprise.utilisateur', fn($q) => $q->where('role', 'entreprise'))
             ->with('offre.entreprise')
             ->orderBy('created_at', 'desc')
             ->get();

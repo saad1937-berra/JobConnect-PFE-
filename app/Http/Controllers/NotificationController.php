@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
@@ -47,7 +48,11 @@ class NotificationController extends Controller
             'message'        => 'required|string',
         ]);
 
-        $notification = Notification::create($request->only(['utilisateur_id', 'type', 'message']));
+        $notification = NotificationService::envoyer(
+            (int) $request->utilisateur_id,
+            $request->type,
+            $request->message
+        );
 
         return response()->json(['message' => 'Notification envoyée.', 'notification' => $notification], 201);
     }

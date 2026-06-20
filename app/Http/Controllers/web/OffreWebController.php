@@ -27,7 +27,7 @@ class OffreWebController extends Controller
 
     public function show($id)
     {
-        $offre = Offre::with(['entreprise', 'categorie'])->findOrFail($id);
+        $offre = Offre::active()->with(['entreprise', 'categorie'])->findOrFail($id);
 
         $dejaCandidaté = false;
         if (auth()->check() && auth()->user()->isParticulier()) {

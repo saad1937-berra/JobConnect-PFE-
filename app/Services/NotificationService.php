@@ -2,20 +2,50 @@
 
 namespace App\Services;
 
+use App\Mail\JobConnectNotificationMail;
 use App\Models\Notification;
+use App\Models\Utilisateur;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class NotificationService
 {
     /**
      * Envoyer une notification à un utilisateur
      */
-    public static function envoyer(int $utilisateurId, string $type, string $message): void
+    public static function envoyer(int $utilisateurId, string $type, string $message): Notification
     {
-        Notification::create([
+        $notification = Notification::create([
             'utilisateur_id' => $utilisateurId,
             'type'           => $type,
             'message'        => $message,
         ]);
+
+        self::envoyerMail($utilisateurId, $type, $message);
+
+        return $notification;
+    }
+
+    private static function envoyerMail(int $utilisateurId, string $type, string $message): void
+    {
+        $utilisateur = Utilisateur::find($utilisateurId);
+
+        if (!$utilisateur?->email) {
+            return;
+        }
+
+        try {
+            Mail::to($utilisateur->email)->send(
+                new JobConnectNotificationMail($utilisateur, $type, $message)
+            );
+        } catch (Throwable $exception) {
+            Log::warning('Email de notification non envoye.', [
+                'utilisateur_id' => $utilisateurId,
+                'type' => $type,
+                'error' => $exception->getMessage(),
+            ]);
+        }
     }
 
     /**

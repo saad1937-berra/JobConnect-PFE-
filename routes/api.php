@@ -56,6 +56,7 @@ Route::middleware(['auth:sanctum', 'not_blocked', 'throttle:120,1'])->group(func
         Route::get('/entreprises',                     [AdminController::class, 'gererEntreprise']);
         Route::patch('/entreprises/{id}/valider',      [AdminController::class, 'validerEntreprise']);
         Route::patch('/utilisateurs/{id}/bloquer',     [AdminController::class, 'bloquerUtilisateur']);
+        Route::patch('/utilisateurs/{id}/debloquer',   [AdminController::class, 'debloquerUtilisateur']);
         Route::post('/notifications',                  [NotificationController::class, 'envoyer']);
     });
 });

@@ -60,6 +60,25 @@ class PublicOfferTest extends TestCase
             ->assertSee('Backend Developer');
     }
 
+    public function test_public_pages_hide_blocked_company_and_its_offers(): void
+    {
+        $activeEntreprise = $this->makeEntreprise(['nom' => 'Visible Company']);
+        $blockedEntreprise = $this->makeEntreprise(['nom' => 'Blocked Company'], ['role' => 'bloque']);
+
+        $this->makeOffre($activeEntreprise, ['titre' => 'Visible Offer']);
+        $blockedOffre = $this->makeOffre($blockedEntreprise, ['titre' => 'Hidden Blocked Offer']);
+
+        $this->get(route('offres.index'))
+            ->assertOk()
+            ->assertSee('Visible Offer')
+            ->assertSee('Visible Company')
+            ->assertDontSee('Hidden Blocked Offer')
+            ->assertDontSee('Blocked Company');
+
+        $this->get(route('offres.show', $blockedOffre->id))
+            ->assertNotFound();
+    }
+
     public function test_privacy_page_is_public(): void
     {
         $this->get(route('privacy'))

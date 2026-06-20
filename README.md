@@ -128,6 +128,7 @@ Regles principales :
 - Chaque signalement est stocke dans une table dediee et consultable depuis l'espace admin.
 - Le formulaire de message affiche des conseils pour rester professionnel.
 - Les nouveaux messages generent une notification pour le destinataire.
+- Les notifications internes sont aussi envoyees par email au destinataire.
 
 ## Securite
 
@@ -288,6 +289,12 @@ Vider le cache de configuration :
 
 ```bash
 php artisan config:clear
+```
+
+Voir les emails en local avec `MAIL_MAILER=log` :
+
+```powershell
+Get-Content storage/logs/laravel.log -Tail 80
 ```
 
 Relancer migrations + seeders :

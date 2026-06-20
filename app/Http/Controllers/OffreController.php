@@ -26,7 +26,7 @@ class OffreController extends Controller
     // Détail d'une offre
     public function show($id)
     {
-        $offre = Offre::with(['entreprise', 'categorie'])->findOrFail($id);
+        $offre = Offre::active()->with(['entreprise', 'categorie'])->findOrFail($id);
         return response()->json($offre);
     }
 }

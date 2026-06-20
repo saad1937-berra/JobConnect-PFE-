@@ -78,4 +78,21 @@ class ApiWorkflowTest extends TestCase
             'tokenable_id' => $particulier->utilisateur_id,
         ]);
     }
+
+    public function test_api_admin_can_unblock_user(): void
+    {
+        $admin = $this->makeAdmin();
+        $entreprise = $this->makeEntreprise([], ['role' => 'bloque']);
+        $adminToken = $admin->createToken('admin')->plainTextToken;
+
+        $this->withHeader('Authorization', 'Bearer ' . $adminToken)
+            ->patchJson('/api/admin/utilisateurs/' . $entreprise->utilisateur_id . '/debloquer')
+            ->assertOk()
+            ->assertJsonPath('role', 'entreprise');
+
+        $this->assertDatabaseHas('utilisateurs', [
+            'id' => $entreprise->utilisateur_id,
+            'role' => 'entreprise',
+        ]);
+    }
 }

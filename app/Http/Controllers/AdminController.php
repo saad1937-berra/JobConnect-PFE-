@@ -29,6 +29,36 @@ class AdminController extends Controller
         return response()->json(['message' => "Utilisateur {$utilisateur->nom} bloqué."]);
     }
 
+    public function debloquerUtilisateur(Request $request, $id)
+    {
+        $utilisateur = Utilisateur::with(['particulier', 'entreprise'])->findOrFail($id);
+        $role = $this->roleApresDeblocage($utilisateur);
+
+        if (!$role) {
+            return response()->json(['message' => 'Impossible de determiner le role a restaurer.'], 422);
+        }
+
+        $utilisateur->update(['role' => $role]);
+
+        return response()->json([
+            'message' => "Utilisateur {$utilisateur->nom} debloque.",
+            'role' => $role,
+        ]);
+    }
+
+    private function roleApresDeblocage(Utilisateur $utilisateur): ?string
+    {
+        if ($utilisateur->entreprise) {
+            return 'entreprise';
+        }
+
+        if ($utilisateur->particulier) {
+            return 'particulier';
+        }
+
+        return null;
+    }
+
     // Gérer les entreprises
     public function gererEntreprise(Request $request)
     {

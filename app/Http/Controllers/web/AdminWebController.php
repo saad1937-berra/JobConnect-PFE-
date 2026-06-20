@@ -111,6 +111,33 @@ class AdminWebController extends Controller
         return back()->with('success', "Utilisateur {$utilisateur->prenom} {$utilisateur->nom} bloqué.");
     }
 
+    public function debloquerUtilisateur($id)
+    {
+        $utilisateur = Utilisateur::with(['particulier', 'entreprise'])->findOrFail($id);
+        $role = $this->roleApresDeblocage($utilisateur);
+
+        if (!$role) {
+            return back()->with('error', 'Impossible de determiner le role a restaurer pour cet utilisateur.');
+        }
+
+        $utilisateur->update(['role' => $role]);
+
+        return back()->with('success', "Utilisateur {$utilisateur->prenom} {$utilisateur->nom} debloque.");
+    }
+
+    private function roleApresDeblocage(Utilisateur $utilisateur): ?string
+    {
+        if ($utilisateur->entreprise) {
+            return 'entreprise';
+        }
+
+        if ($utilisateur->particulier) {
+            return 'particulier';
+        }
+
+        return null;
+    }
+
     // ── Offres ───────────────────────────────────────────────────────
 
     public function offres(Request $request)

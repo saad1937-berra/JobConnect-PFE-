@@ -77,7 +77,13 @@
                                     </button>
                                 </form>
                             @endif
-                            @if ($u->role !== 'bloque' && $u->id !== auth()->id())
+                            @if ($u->role === 'bloque')
+                                <form method="POST" action="{{ route('admin.utilisateurs.debloquer', $u->id) }}"
+                                    onsubmit="return confirm('Debloquer cet utilisateur ?')" style="display:inline;">
+                                    @csrf @method('PATCH')
+                                    <button type="submit" class="btn btn-outline btn-sm"><i class="fas fa-unlock"></i> Debloquer</button>
+                                </form>
+                            @elseif ($u->id !== auth()->id())
                                 <form method="POST" action="{{ route('admin.utilisateurs.bloquer', $u->id) }}"
                                     onsubmit="return confirm('Bloquer cet utilisateur ?')" style="display:inline;">
                                     @csrf @method('PATCH')
