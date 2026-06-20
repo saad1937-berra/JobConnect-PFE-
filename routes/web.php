@@ -52,6 +52,7 @@ Route::middleware(['auth', 'not_blocked'])->group(function () {
         Route::put('/profil',           [ParticulierWebController::class, 'updateProfil'])->name('profil.update');
 
         Route::post('/cv',              [ParticulierWebController::class, 'uploadCV'])->name('cv.upload');
+        Route::put('/cv/details',       [ParticulierWebController::class, 'updateCvDetails'])->name('cv.details.update');
         Route::get('/cv/generer',       [ParticulierWebController::class, 'genererCv'])->name('cv.generate');
         Route::get('/cv/{id}/download', [ParticulierWebController::class, 'telechargerCV'])->name('cv.download');
 

@@ -111,6 +111,19 @@
             word-break: break-word;
         }
         .cv-contact i { color: #facc15; width: 16px; padding-top: 2px; }
+        .cv-side-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+        }
+        .cv-side-list strong {
+            display: block;
+            font-size: 0.86rem;
+        }
+        .cv-side-list span {
+            color: #d1d5db;
+            font-size: 0.78rem;
+        }
         .cv-muted { color: #6b7280; }
         .cv-sidebar .cv-muted { color: #d1d5db; }
         .cv-section p {
@@ -152,6 +165,12 @@
             margin-top: 0.2rem;
             color: #6b7280;
             font-weight: 700;
+        }
+        .cv-item p {
+            margin-top: 0.45rem;
+            color: #374151;
+            line-height: 1.55;
+            font-size: 0.9rem;
         }
         .cv-empty {
             border: 1px dashed #cbd5e1;
@@ -211,14 +230,34 @@
             <h2>Formation</h2>
             <p class="cv-muted">{{ $particulier->niveau_etude ?? 'Niveau non renseigne' }}</p>
 
-            <h2>Informations</h2>
-            <p class="cv-muted">Profil cree sur JobConnect.</p>
+            @if($cvLangues->isNotEmpty())
+                <h2>Langues</h2>
+                <div class="cv-side-list">
+                    @foreach($cvLangues as $langue)
+                        <div>
+                            <strong>{{ $langue['nom'] ?? '' }}</strong>
+                            @if(!empty($langue['niveau']))
+                                <span>{{ $langue['niveau'] }}</span>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            @if($cvLoisirs->isNotEmpty())
+                <h2>Loisirs</h2>
+                <div class="cv-side-list">
+                    @foreach($cvLoisirs as $loisir)
+                        <div><strong>{{ $loisir['nom'] ?? '' }}</strong></div>
+                    @endforeach
+                </div>
+            @endif
         </aside>
 
         <main class="cv-main">
             <header>
                 <h1>{{ $utilisateur->prenom }} {{ $utilisateur->nom }}</h1>
-                <p class="cv-title">{{ $particulier->niveau_etude ? 'Candidat '.$particulier->niveau_etude : 'Candidat JobConnect' }}</p>
+                <p class="cv-title">{{ $particulier->cv_titre ?: ($particulier->niveau_etude ? 'Candidat '.$particulier->niveau_etude : 'Candidat JobConnect') }}</p>
             </header>
 
             <section class="cv-section">
@@ -243,8 +282,23 @@
             </section>
 
             <section class="cv-section">
-                <h2>Experiences et opportunites</h2>
-                @if($candidaturesAcceptees->isNotEmpty())
+                <h2>Experiences professionnelles</h2>
+                @if($cvExperiences->isNotEmpty())
+                    @foreach($cvExperiences as $experience)
+                        <div class="cv-item">
+                            <strong>{{ $experience['poste'] ?? 'Experience' }}</strong>
+                            <small>
+                                {{ $experience['entreprise'] ?? '' }}
+                                @if(!empty($experience['periode']))
+                                    - {{ $experience['periode'] }}
+                                @endif
+                            </small>
+                            @if(!empty($experience['description']))
+                                <p>{{ $experience['description'] }}</p>
+                            @endif
+                        </div>
+                    @endforeach
+                @elseif($candidaturesAcceptees->isNotEmpty())
                     @foreach($candidaturesAcceptees as $candidature)
                         <div class="cv-item">
                             <strong>{{ $candidature->offre?->titre }}</strong>
@@ -257,8 +311,30 @@
             </section>
 
             <section class="cv-section">
-                <h2>Centres d'interet professionnel</h2>
-                <p class="cv-muted">Recrutement, evolution professionnelle et opportunites adaptees au profil.</p>
+                <h2>Formations</h2>
+                @if($cvFormations->isNotEmpty())
+                    @foreach($cvFormations as $formation)
+                        <div class="cv-item">
+                            <strong>{{ $formation['diplome'] ?? 'Formation' }}</strong>
+                            <small>
+                                {{ $formation['ecole'] ?? '' }}
+                                @if(!empty($formation['periode']))
+                                    - {{ $formation['periode'] }}
+                                @endif
+                            </small>
+                            @if(!empty($formation['description']))
+                                <p>{{ $formation['description'] }}</p>
+                            @endif
+                        </div>
+                    @endforeach
+                @elseif($particulier->niveau_etude)
+                    <div class="cv-item">
+                        <strong>{{ $particulier->niveau_etude }}</strong>
+                        <small>Niveau d'etude renseigne sur JobConnect</small>
+                    </div>
+                @else
+                    <div class="cv-empty">Ajoutez vos formations dans votre profil pour enrichir cette section.</div>
+                @endif
             </section>
         </main>
     </article>

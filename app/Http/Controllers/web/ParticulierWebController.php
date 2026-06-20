@@ -94,6 +94,46 @@ class ParticulierWebController extends Controller
         return back()->with('success', 'CV uploadé avec succès.');
     }
 
+    public function updateCvDetails(Request $request)
+    {
+        $request->validate([
+            'cv_titre' => 'nullable|string|max:120',
+            'cv_experiences' => 'nullable|array|max:10',
+            'cv_experiences.*.poste' => 'nullable|string|max:120',
+            'cv_experiences.*.entreprise' => 'nullable|string|max:120',
+            'cv_experiences.*.periode' => 'nullable|string|max:80',
+            'cv_experiences.*.description' => 'nullable|string|max:1200',
+            'cv_formations' => 'nullable|array|max:10',
+            'cv_formations.*.diplome' => 'nullable|string|max:120',
+            'cv_formations.*.ecole' => 'nullable|string|max:120',
+            'cv_formations.*.periode' => 'nullable|string|max:80',
+            'cv_formations.*.description' => 'nullable|string|max:1200',
+            'cv_langues' => 'nullable|array|max:8',
+            'cv_langues.*.nom' => 'nullable|string|max:80',
+            'cv_langues.*.niveau' => 'nullable|string|max:80',
+            'cv_loisirs' => 'nullable|array|max:12',
+            'cv_loisirs.*.nom' => 'nullable|string|max:80',
+        ]);
+
+        auth()->user()->particulier->update([
+            'cv_titre' => $request->filled('cv_titre') ? trim($request->cv_titre) : null,
+            'cv_experiences' => $this->normaliserCvEntries($request->input('cv_experiences', []), [
+                'poste', 'entreprise', 'periode', 'description',
+            ]),
+            'cv_formations' => $this->normaliserCvEntries($request->input('cv_formations', []), [
+                'diplome', 'ecole', 'periode', 'description',
+            ]),
+            'cv_langues' => $this->normaliserCvEntries($request->input('cv_langues', []), [
+                'nom', 'niveau',
+            ]),
+            'cv_loisirs' => $this->normaliserCvEntries($request->input('cv_loisirs', []), [
+                'nom',
+            ]),
+        ]);
+
+        return back()->with('success', 'Informations du CV mises a jour.');
+    }
+
     public function telechargerCV($id)
     {
         $particulier = auth()->user()->particulier;
@@ -114,11 +154,19 @@ class ParticulierWebController extends Controller
             ->where('statut', 'acceptee')
             ->sortByDesc('created_at')
             ->take(4);
+        $cvExperiences = $this->cvEntries($particulier->cv_experiences);
+        $cvFormations = $this->cvEntries($particulier->cv_formations);
+        $cvLangues = $this->cvEntries($particulier->cv_langues);
+        $cvLoisirs = $this->cvEntries($particulier->cv_loisirs);
 
         return view('particulier.cv-template', compact(
             'utilisateur',
             'particulier',
-            'candidaturesAcceptees'
+            'candidaturesAcceptees',
+            'cvExperiences',
+            'cvFormations',
+            'cvLangues',
+            'cvLoisirs'
         ));
     }
 
@@ -213,5 +261,35 @@ class ParticulierWebController extends Controller
         }
 
         abort(404, 'CV introuvable.');
+    }
+
+    private function normaliserCvEntries(array $entries, array $fields): array
+    {
+        return collect($entries)
+            ->map(function ($entry) use ($fields) {
+                if (!is_array($entry)) {
+                    return null;
+                }
+
+                $normalized = [];
+
+                foreach ($fields as $field) {
+                    $normalized[$field] = trim((string) ($entry[$field] ?? ''));
+                }
+
+                return collect($normalized)->filter(fn($value) => $value !== '')->isEmpty()
+                    ? null
+                    : $normalized;
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    private function cvEntries(?array $entries)
+    {
+        return collect($entries ?? [])
+            ->filter(fn($entry) => is_array($entry) && collect($entry)->filter(fn($value) => filled($value))->isNotEmpty())
+            ->values();
     }
 }

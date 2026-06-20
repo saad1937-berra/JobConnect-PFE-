@@ -225,6 +225,167 @@
             </form>
         </div>
 
+        <!-- Informations CV -->
+        <div class="part-section-card">
+            <div class="part-section-header">
+                <h3><i class="fas fa-id-card" style="color:var(--part-yellow);background:var(--part-black);padding:0.3rem 0.4rem;border-radius:4px;font-size:0.8rem;"></i> Informations CV</h3>
+            </div>
+
+            @php
+                $cvExperiencesForm = old('cv_experiences', $particulier->cv_experiences ?? []);
+                $cvFormationsForm = old('cv_formations', $particulier->cv_formations ?? []);
+                $cvLanguesForm = old('cv_langues', $particulier->cv_langues ?? []);
+                $cvLoisirsForm = old('cv_loisirs', $particulier->cv_loisirs ?? []);
+
+                if (!is_array($cvExperiencesForm) || count($cvExperiencesForm) === 0) {
+                    $cvExperiencesForm = [['poste' => '', 'entreprise' => '', 'periode' => '', 'description' => '']];
+                }
+                if (!is_array($cvFormationsForm) || count($cvFormationsForm) === 0) {
+                    $cvFormationsForm = [['diplome' => '', 'ecole' => '', 'periode' => '', 'description' => '']];
+                }
+                if (!is_array($cvLanguesForm) || count($cvLanguesForm) === 0) {
+                    $cvLanguesForm = [['nom' => '', 'niveau' => '']];
+                }
+                if (!is_array($cvLoisirsForm) || count($cvLoisirsForm) === 0) {
+                    $cvLoisirsForm = [['nom' => '']];
+                }
+            @endphp
+
+            <form method="POST" action="{{ route('particulier.cv.details.update') }}">
+                @csrf @method('PUT')
+
+                <div class="part-form-group">
+                    <label>Titre professionnel</label>
+                    <input type="text" name="cv_titre" class="part-form-control"
+                           value="{{ old('cv_titre', $particulier->cv_titre) }}"
+                           placeholder="Ex: Developpeuse Full-Stack Laravel / Vue.js">
+                </div>
+
+                <div style="margin-top:1rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
+                        <h4 style="margin:0;font-size:0.9rem;font-weight:800;">Experiences</h4>
+                        <button type="button" class="part-btn part-btn-outline part-btn-sm" onclick="addCvEntry('experience')">
+                            <i class="fas fa-plus"></i> Ajouter
+                        </button>
+                    </div>
+                    <div data-cv-list="experience" style="display:flex;flex-direction:column;gap:0.75rem;">
+                        @foreach($cvExperiencesForm as $index => $experience)
+                            <div data-cv-item style="border:1px solid var(--part-border);border-radius:var(--part-radius);padding:0.85rem;background:var(--part-gray);">
+                                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr)) auto;gap:0.6rem;align-items:start;">
+                                    <input type="text" name="cv_experiences[{{ $index }}][poste]" class="part-form-control" value="{{ $experience['poste'] ?? '' }}" placeholder="Poste">
+                                    <input type="text" name="cv_experiences[{{ $index }}][entreprise]" class="part-form-control" value="{{ $experience['entreprise'] ?? '' }}" placeholder="Entreprise">
+                                    <input type="text" name="cv_experiences[{{ $index }}][periode]" class="part-form-control" value="{{ $experience['periode'] ?? '' }}" placeholder="2024 - 2025">
+                                    <button type="button" class="part-btn part-btn-outline part-btn-sm" onclick="removeCvEntry(this)"><i class="fas fa-times"></i></button>
+                                </div>
+                                <textarea name="cv_experiences[{{ $index }}][description]" class="part-form-control" rows="2" style="margin-top:0.6rem;" placeholder="Missions, technologies, resultats...">{{ $experience['description'] ?? '' }}</textarea>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div style="margin-top:1rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
+                        <h4 style="margin:0;font-size:0.9rem;font-weight:800;">Formations</h4>
+                        <button type="button" class="part-btn part-btn-outline part-btn-sm" onclick="addCvEntry('formation')">
+                            <i class="fas fa-plus"></i> Ajouter
+                        </button>
+                    </div>
+                    <div data-cv-list="formation" style="display:flex;flex-direction:column;gap:0.75rem;">
+                        @foreach($cvFormationsForm as $index => $formation)
+                            <div data-cv-item style="border:1px solid var(--part-border);border-radius:var(--part-radius);padding:0.85rem;background:var(--part-gray);">
+                                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr)) auto;gap:0.6rem;align-items:start;">
+                                    <input type="text" name="cv_formations[{{ $index }}][diplome]" class="part-form-control" value="{{ $formation['diplome'] ?? '' }}" placeholder="Diplome">
+                                    <input type="text" name="cv_formations[{{ $index }}][ecole]" class="part-form-control" value="{{ $formation['ecole'] ?? '' }}" placeholder="Ecole">
+                                    <input type="text" name="cv_formations[{{ $index }}][periode]" class="part-form-control" value="{{ $formation['periode'] ?? '' }}" placeholder="2021 - 2024">
+                                    <button type="button" class="part-btn part-btn-outline part-btn-sm" onclick="removeCvEntry(this)"><i class="fas fa-times"></i></button>
+                                </div>
+                                <textarea name="cv_formations[{{ $index }}][description]" class="part-form-control" rows="2" style="margin-top:0.6rem;" placeholder="Specialite, projet, mention...">{{ $formation['description'] ?? '' }}</textarea>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+                    <div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
+                            <h4 style="margin:0;font-size:0.9rem;font-weight:800;">Langues</h4>
+                            <button type="button" class="part-btn part-btn-outline part-btn-sm" onclick="addCvEntry('langue')">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div data-cv-list="langue" style="display:flex;flex-direction:column;gap:0.5rem;">
+                            @foreach($cvLanguesForm as $index => $langue)
+                                <div data-cv-item style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr)) auto;gap:0.5rem;">
+                                    <input type="text" name="cv_langues[{{ $index }}][nom]" class="part-form-control" value="{{ $langue['nom'] ?? '' }}" placeholder="Francais">
+                                    <input type="text" name="cv_langues[{{ $index }}][niveau]" class="part-form-control" value="{{ $langue['niveau'] ?? '' }}" placeholder="Courant">
+                                    <button type="button" class="part-btn part-btn-outline part-btn-sm" onclick="removeCvEntry(this)"><i class="fas fa-times"></i></button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
+                            <h4 style="margin:0;font-size:0.9rem;font-weight:800;">Loisirs</h4>
+                            <button type="button" class="part-btn part-btn-outline part-btn-sm" onclick="addCvEntry('loisir')">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div data-cv-list="loisir" style="display:flex;flex-direction:column;gap:0.5rem;">
+                            @foreach($cvLoisirsForm as $index => $loisir)
+                                <div data-cv-item style="display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:0.5rem;">
+                                    <input type="text" name="cv_loisirs[{{ $index }}][nom]" class="part-form-control" value="{{ $loisir['nom'] ?? '' }}" placeholder="Lecture, sport, design...">
+                                    <button type="button" class="part-btn part-btn-outline part-btn-sm" onclick="removeCvEntry(this)"><i class="fas fa-times"></i></button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:1rem;">
+                    <button type="submit" class="part-btn part-btn-primary">
+                        <i class="fas fa-save"></i> Enregistrer les infos CV
+                    </button>
+                </div>
+            </form>
+
+            <template id="tpl-experience">
+                <div data-cv-item style="border:1px solid var(--part-border);border-radius:var(--part-radius);padding:0.85rem;background:var(--part-gray);">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr)) auto;gap:0.6rem;align-items:start;">
+                        <input type="text" name="cv_experiences[__INDEX__][poste]" class="part-form-control" placeholder="Poste">
+                        <input type="text" name="cv_experiences[__INDEX__][entreprise]" class="part-form-control" placeholder="Entreprise">
+                        <input type="text" name="cv_experiences[__INDEX__][periode]" class="part-form-control" placeholder="2024 - 2025">
+                        <button type="button" class="part-btn part-btn-outline part-btn-sm" onclick="removeCvEntry(this)"><i class="fas fa-times"></i></button>
+                    </div>
+                    <textarea name="cv_experiences[__INDEX__][description]" class="part-form-control" rows="2" style="margin-top:0.6rem;" placeholder="Missions, technologies, resultats..."></textarea>
+                </div>
+            </template>
+            <template id="tpl-formation">
+                <div data-cv-item style="border:1px solid var(--part-border);border-radius:var(--part-radius);padding:0.85rem;background:var(--part-gray);">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr)) auto;gap:0.6rem;align-items:start;">
+                        <input type="text" name="cv_formations[__INDEX__][diplome]" class="part-form-control" placeholder="Diplome">
+                        <input type="text" name="cv_formations[__INDEX__][ecole]" class="part-form-control" placeholder="Ecole">
+                        <input type="text" name="cv_formations[__INDEX__][periode]" class="part-form-control" placeholder="2021 - 2024">
+                        <button type="button" class="part-btn part-btn-outline part-btn-sm" onclick="removeCvEntry(this)"><i class="fas fa-times"></i></button>
+                    </div>
+                    <textarea name="cv_formations[__INDEX__][description]" class="part-form-control" rows="2" style="margin-top:0.6rem;" placeholder="Specialite, projet, mention..."></textarea>
+                </div>
+            </template>
+            <template id="tpl-langue">
+                <div data-cv-item style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr)) auto;gap:0.5rem;">
+                    <input type="text" name="cv_langues[__INDEX__][nom]" class="part-form-control" placeholder="Francais">
+                    <input type="text" name="cv_langues[__INDEX__][niveau]" class="part-form-control" placeholder="Courant">
+                    <button type="button" class="part-btn part-btn-outline part-btn-sm" onclick="removeCvEntry(this)"><i class="fas fa-times"></i></button>
+                </div>
+            </template>
+            <template id="tpl-loisir">
+                <div data-cv-item style="display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:0.5rem;">
+                    <input type="text" name="cv_loisirs[__INDEX__][nom]" class="part-form-control" placeholder="Lecture, sport, design...">
+                    <button type="button" class="part-btn part-btn-outline part-btn-sm" onclick="removeCvEntry(this)"><i class="fas fa-times"></i></button>
+                </div>
+            </template>
+        </div>
+
         <!-- Compétences -->
         <div class="part-section-card">
             <div class="part-section-header">
@@ -303,6 +464,28 @@
         const visible = form.style.display !== 'none';
         form.style.display = visible ? 'none' : 'block';
         view.style.display = visible ? 'block' : 'none';
+    }
+
+    function addCvEntry(type) {
+        const list = document.querySelector(`[data-cv-list="${type}"]`);
+        const template = document.getElementById(`tpl-${type}`);
+        if (!list || !template) return;
+
+        const index = list.querySelectorAll('[data-cv-item]').length;
+        list.insertAdjacentHTML('beforeend', template.innerHTML.replace(/__INDEX__/g, index));
+    }
+
+    function removeCvEntry(button) {
+        const item = button.closest('[data-cv-item]');
+        const list = item?.parentElement;
+        if (!item || !list) return;
+
+        if (list.querySelectorAll('[data-cv-item]').length === 1) {
+            item.querySelectorAll('input, textarea').forEach(input => input.value = '');
+            return;
+        }
+
+        item.remove();
     }
 </script>
 @endpush

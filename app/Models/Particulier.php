@@ -16,10 +16,19 @@ class Particulier extends Model
         'date_naissance',
         'niveau_etude',
         'photo',
+        'cv_titre',
+        'cv_experiences',
+        'cv_formations',
+        'cv_langues',
+        'cv_loisirs',
     ];
 
     protected $casts = [
         'date_naissance' => 'date',
+        'cv_experiences' => 'array',
+        'cv_formations' => 'array',
+        'cv_langues' => 'array',
+        'cv_loisirs' => 'array',
     ];
 
     // Relations

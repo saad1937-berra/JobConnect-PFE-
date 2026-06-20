@@ -42,6 +42,7 @@ Chaque role a son propre espace, ses permissions et ses vues dediees.
 - Gestion du profil : bio, telephone, adresse, date de naissance, niveau d'etude.
 - Upload photo de profil.
 - Upload de CV PDF, DOC ou DOCX.
+- Generation d'un CV template depuis le profil, les experiences, les formations, les langues et les loisirs.
 - Stockage prive des CV dans `storage/app/private`.
 - Lecture automatique du texte des CV pour ameliorer le matching.
 - Gestion des competences.

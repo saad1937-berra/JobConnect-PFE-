@@ -176,6 +176,62 @@ class ParticulierWorkflowTest extends TestCase
             ->assertSee('Telecharger en PDF');
     }
 
+    public function test_particulier_can_fill_cv_builder_details(): void
+    {
+        $particulier = $this->makeParticulier([
+            'bio' => 'Developpeur Laravel motive',
+        ], [
+            'prenom' => 'Nada',
+            'nom' => 'Hadji',
+        ]);
+
+        $this->actingAs($particulier->utilisateur)
+            ->put(route('particulier.cv.details.update'), [
+                'cv_titre' => 'Developpeuse Full-Stack',
+                'cv_experiences' => [
+                    [
+                        'poste' => 'Stagiaire Laravel',
+                        'entreprise' => 'TechMaroc',
+                        'periode' => '2025',
+                        'description' => 'Creation de modules Laravel et Vue.',
+                    ],
+                ],
+                'cv_formations' => [
+                    [
+                        'diplome' => 'Licence Informatique',
+                        'ecole' => 'Universite Hassan II',
+                        'periode' => '2022 - 2025',
+                        'description' => 'Developpement web et bases de donnees.',
+                    ],
+                ],
+                'cv_langues' => [
+                    ['nom' => 'Francais', 'niveau' => 'Courant'],
+                    ['nom' => 'Anglais', 'niveau' => 'Intermediaire'],
+                ],
+                'cv_loisirs' => [
+                    ['nom' => 'Lecture'],
+                    ['nom' => 'Design'],
+                ],
+            ])
+            ->assertRedirect();
+
+        $particulier->refresh();
+
+        $this->assertSame('Developpeuse Full-Stack', $particulier->cv_titre);
+        $this->assertSame('Stagiaire Laravel', $particulier->cv_experiences[0]['poste']);
+        $this->assertSame('Francais', $particulier->cv_langues[0]['nom']);
+
+        $this->actingAs($particulier->utilisateur)
+            ->get(route('particulier.cv.generate'))
+            ->assertOk()
+            ->assertSee('Developpeuse Full-Stack')
+            ->assertSee('Stagiaire Laravel')
+            ->assertSee('TechMaroc')
+            ->assertSee('Licence Informatique')
+            ->assertSee('Francais')
+            ->assertSee('Lecture');
+    }
+
     public function test_particulier_matching_and_suggestions_pages_are_available(): void
     {
         $particulier = $this->makeParticulier();
