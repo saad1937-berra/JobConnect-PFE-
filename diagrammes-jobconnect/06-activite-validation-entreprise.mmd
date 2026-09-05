@@ -1,0 +1,18 @@
+flowchart TD
+    A([Debut]) --> B[Entreprise cree un compte]
+    B --> C[Verification email]
+    C --> D{Email verifie ?}
+    D -- Non --> E[Compte en attente de verification]
+    E --> Z([Fin])
+    D -- Oui --> F[Compte en attente de validation admin]
+    F --> G[Administrateur consulte entreprises en attente]
+    G --> H{Decision admin}
+    H -- Refuser --> I[Statut refusee]
+    I --> J[Entreprise ne peut pas publier]
+    J --> Z
+    H -- Valider --> K[Statut validee]
+    K --> L[Entreprise complete son profil]
+    L --> M[Entreprise publie une offre]
+    M --> N[Offre visible si active]
+    N --> Z([Fin])
+

@@ -163,6 +163,7 @@ class MessageAuthorizationTest extends TestCase
     {
         $user = Utilisateur::create([
             'email' => uniqid($role . '_') . '@example.test',
+            'email_verified_at' => now(),
             'pass' => Hash::make('password'),
             'nom' => ucfirst($role),
             'prenom' => 'Test',
@@ -178,6 +179,7 @@ class MessageAuthorizationTest extends TestCase
             Entreprise::create([
                 'utilisateur_id' => $user->id,
                 'nom' => 'Entreprise Test',
+                'statut_validation' => 'validee',
             ]);
         }
 

@@ -251,7 +251,7 @@
                 }
             @endphp
 
-            <form method="POST" action="{{ route('particulier.cv.details.update') }}">
+            <form method="POST" action="{{ route('particulier.cv.details.update') }}" data-cv-builder-form data-cv-draft-key="jobconnect:cv-builder:{{ $particulier->id }}">
                 @csrf @method('PUT')
 
                 <div class="part-form-group">
@@ -486,6 +486,70 @@
         }
 
         item.remove();
+    }
+
+    const cvBuilderForm = document.querySelector('[data-cv-builder-form]');
+    const cvDraftKey = cvBuilderForm?.dataset.cvDraftKey;
+
+    function cvTypeFromFieldName(name) {
+        if (name.startsWith('cv_experiences[')) return 'experience';
+        if (name.startsWith('cv_formations[')) return 'formation';
+        if (name.startsWith('cv_langues[')) return 'langue';
+        if (name.startsWith('cv_loisirs[')) return 'loisir';
+        return null;
+    }
+
+    function ensureCvFieldExists(name) {
+        let field = cvBuilderForm?.querySelector(`[name="${CSS.escape(name)}"]`);
+        const type = cvTypeFromFieldName(name);
+
+        while (!field && type) {
+            const list = document.querySelector(`[data-cv-list="${type}"]`);
+            const beforeCount = list?.querySelectorAll('[data-cv-item]').length ?? 0;
+            addCvEntry(type);
+            const afterCount = list?.querySelectorAll('[data-cv-item]').length ?? 0;
+            if (afterCount === beforeCount) break;
+            field = cvBuilderForm.querySelector(`[name="${CSS.escape(name)}"]`);
+        }
+
+        return field;
+    }
+
+    function saveCvDraft() {
+        if (!cvBuilderForm || !cvDraftKey) return;
+
+        const data = {};
+        cvBuilderForm.querySelectorAll('input[name], textarea[name], select[name]').forEach((field) => {
+            if (field.name.startsWith('_')) return;
+            data[field.name] = field.value;
+        });
+
+        localStorage.setItem(cvDraftKey, JSON.stringify(data));
+    }
+
+    function restoreCvDraft() {
+        if (!cvBuilderForm || !cvDraftKey) return;
+
+        const raw = localStorage.getItem(cvDraftKey);
+        if (!raw) return;
+
+        try {
+            const data = JSON.parse(raw);
+            Object.entries(data).forEach(([name, value]) => {
+                const field = ensureCvFieldExists(name);
+                if (field) field.value = value ?? '';
+            });
+        } catch (error) {
+            localStorage.removeItem(cvDraftKey);
+        }
+    }
+
+    restoreCvDraft();
+
+    if (cvBuilderForm && cvDraftKey) {
+        cvBuilderForm.addEventListener('input', saveCvDraft);
+        cvBuilderForm.addEventListener('change', saveCvDraft);
+        cvBuilderForm.addEventListener('submit', () => localStorage.removeItem(cvDraftKey));
     }
 </script>
 @endpush

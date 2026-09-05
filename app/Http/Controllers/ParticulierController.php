@@ -101,6 +101,12 @@ class ParticulierController extends Controller
     // Postuler à une offre
     public function postuler(Request $request)
     {
+        if (!$request->user()->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Confirmez votre adresse email avant de postuler.',
+            ], 403);
+        }
+
         $request->validate([
             'offre_id' => 'required|exists:offres,id',
         ]);
@@ -131,7 +137,7 @@ class ParticulierController extends Controller
         $particulier = $request->user()->particulier;
 
         $candidatures = $particulier->candidatures()
-            ->whereHas('offre.entreprise.utilisateur', fn($q) => $q->where('role', 'entreprise'))
+            ->whereHas('offre.entreprise', fn($q) => $q->activeAccount())
             ->with('offre.entreprise')
             ->orderBy('created_at', 'desc')
             ->get();

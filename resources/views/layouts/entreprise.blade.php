@@ -87,9 +87,15 @@
                     <a href="{{ route('entreprise.offres') }}" class="ent-nav-link {{ request()->routeIs('entreprise.offres') ? 'active' : '' }}">
                         <i class="fas fa-briefcase"></i> Mes offres
                     </a>
-                    <a href="{{ route('entreprise.offres.creer') }}" class="ent-nav-link {{ request()->routeIs('entreprise.offres.creer') ? 'active' : '' }}">
-                        <i class="fas fa-plus-circle"></i> Publier une offre
-                    </a>
+                    @if(auth()->user()->entreprise?->peutPublier())
+                        <a href="{{ route('entreprise.offres.creer') }}" class="ent-nav-link {{ request()->routeIs('entreprise.offres.creer') ? 'active' : '' }}">
+                            <i class="fas fa-plus-circle"></i> Publier une offre
+                        </a>
+                    @else
+                        <span class="ent-nav-link ent-nav-link-disabled">
+                            <i class="fas fa-lock"></i> Publication en attente
+                        </span>
+                    @endif
                 </div>
 
                 <div class="ent-nav-section">
@@ -141,6 +147,32 @@
             @if(session('error'))
                 <div class="ent-flash ent-flash-error">
                     <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+                </div>
+            @endif
+
+            @if(auth()->user()->entreprise && !auth()->user()->entreprise->peutPublier())
+                @php
+                    $entrepriseCourante = auth()->user()->entreprise;
+                    $emailManquant = !auth()->user()->hasVerifiedEmail();
+                    $alertTitle = $emailManquant ? 'Email non verifie' : ($entrepriseCourante->isRefusee() ? 'Entreprise refusee' : 'Validation en attente');
+                    $alertMessage = $emailManquant
+                        ? 'Confirmez votre adresse email avant de publier des offres et apparaitre aux candidats.'
+                        : ($entrepriseCourante->isRefusee()
+                            ? 'Votre entreprise ne peut pas publier d\'offres ni apparaitre dans les resultats. Contactez l admin pour plus d informations.'
+                            : 'Votre entreprise doit etre validee par un admin avant de publier des offres et apparaitre aux candidats.');
+                @endphp
+                <div class="ent-status-alert {{ $entrepriseCourante->isRefusee() ? 'is-refused' : 'is-pending' }}">
+                    <i class="fas fa-shield-alt"></i>
+                    <div>
+                        <strong>{{ $alertTitle }}</strong>
+                        <p>{{ $alertMessage }}</p>
+                        @if($emailManquant)
+                            <form method="POST" action="{{ route('verification.send') }}" style="margin-top:0.75rem;">
+                                @csrf
+                                <button type="submit" class="ent-btn ent-btn-outline ent-btn-sm">Renvoyer le lien</button>
+                            </form>
+                        @endif
+                    </div>
                 </div>
             @endif
 

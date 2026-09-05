@@ -193,6 +193,10 @@ class ParticulierWebController extends Controller
 
     public function postuler(Request $request)
     {
+        if (!auth()->user()->hasVerifiedEmail()) {
+            return back()->with('error', 'Confirmez votre adresse email avant de postuler.');
+        }
+
         $request->validate(['offre_id' => 'required|exists:offres,id']);
 
         $particulier = auth()->user()->particulier;
@@ -222,7 +226,7 @@ class ParticulierWebController extends Controller
     {
         $candidatures = auth()->user()->particulier
             ->candidatures()
-            ->whereHas('offre.entreprise.utilisateur', fn($q) => $q->where('role', 'entreprise'))
+            ->whereHas('offre.entreprise', fn($q) => $q->activeAccount())
             ->with('offre.entreprise.utilisateur')
             ->orderBy('created_at', 'desc')
             ->get();

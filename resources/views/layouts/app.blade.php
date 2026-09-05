@@ -100,6 +100,21 @@
         @if (session('info'))
             <div class="flash flash-info"><i class="fas fa-info-circle"></i> {{ session('info') }}</div>
         @endif
+        @auth
+            @if(!auth()->user()->isAdmin() && !auth()->user()->hasVerifiedEmail())
+                <div class="flash flash-info">
+                    <i class="fas fa-envelope-circle-check"></i>
+                    <div>
+                        <strong>Email non verifie.</strong>
+                        Confirmez votre adresse email pour activer votre profil.
+                        <form method="POST" action="{{ route('verification.send') }}" style="display:inline;margin-left:0.5rem;">
+                            @csrf
+                            <button type="submit" class="btn btn-outline btn-sm">Renvoyer le lien</button>
+                        </form>
+                    </div>
+                </div>
+            @endif
+        @endauth
 
         @yield('content')
     </main>

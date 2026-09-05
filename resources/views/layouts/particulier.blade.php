@@ -99,6 +99,20 @@
             </div>
         @endif
 
+        @if(!auth()->user()->hasVerifiedEmail())
+            <div class="part-flash part-flash-error" style="align-items:flex-start;">
+                <i class="fas fa-envelope-circle-check"></i>
+                <div>
+                    <strong>Email non verifie</strong>
+                    <div style="font-weight:500;margin-top:0.2rem;">Confirmez votre adresse email avant de postuler et d acceder au matching.</div>
+                    <form method="POST" action="{{ route('verification.send') }}" style="margin-top:0.75rem;">
+                        @csrf
+                        <button type="submit" class="part-btn part-btn-outline part-btn-sm">Renvoyer le lien</button>
+                    </form>
+                </div>
+            </div>
+        @endif
+
         @yield('part-content')
     </main>
 

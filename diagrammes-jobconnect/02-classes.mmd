@@ -1,0 +1,144 @@
+classDiagram
+    class Utilisateur {
+        +int id
+        +string email
+        +string pass
+        +string nom
+        +string prenom
+        +string role
+        +timestamp email_verified_at
+        +timestamp date_inscription
+        +isAdmin()
+        +isParticulier()
+        +isEntreprise()
+        +hasVerifiedEmail()
+    }
+
+    class Particulier {
+        +int id
+        +int utilisateur_id
+        +string bio
+        +string tel
+        +string adresse
+        +date date_naissance
+        +string niveau_etude
+        +string photo
+        +string cv_titre
+        +json cv_experiences
+        +json cv_formations
+        +json cv_langues
+        +json cv_loisirs
+    }
+
+    class Entreprise {
+        +int id
+        +int utilisateur_id
+        +string nom
+        +string secteur
+        +string description
+        +string adresse
+        +string site_web
+        +string logo
+        +string statut_validation
+        +isValidee()
+        +peutPublier()
+    }
+
+    class Offre {
+        +int id
+        +int entreprise_id
+        +int categorie_id
+        +string titre
+        +text description
+        +string contrat
+        +string duree
+        +string localisation
+        +string niveau_etude
+        +string statut
+        +string salaire
+    }
+
+    class Candidature {
+        +int id
+        +int particulier_id
+        +int offre_id
+        +timestamp date
+        +string statut
+        +text commentaire
+    }
+
+    class Cv {
+        +int id
+        +int particulier_id
+        +string cv_path
+        +text cv_text
+    }
+
+    class Competance {
+        +int id
+        +string nom
+        +text description
+    }
+
+    class Categorie {
+        +int id
+        +string nom
+        +text description
+    }
+
+    class Notification {
+        +int id
+        +int utilisateur_id
+        +string type
+        +text message
+        +timestamp date_lecture
+        +isLue()
+        +marquerLu()
+    }
+
+    class Conversation {
+        +int id
+        +int user_one_id
+        +int user_two_id
+        +timestamp last_message_at
+        +between()
+        +hasParticipant()
+    }
+
+    class Message {
+        +int id
+        +int conversation_id
+        +int sender_id
+        +text body
+        +timestamp read_at
+    }
+
+    class Report {
+        +int id
+        +int conversation_id
+        +int reporter_id
+        +int reported_id
+        +text reason
+        +string status
+        +text admin_note
+        +timestamp resolved_at
+    }
+
+    Utilisateur "1" --> "0..1" Particulier
+    Utilisateur "1" --> "0..1" Entreprise
+    Utilisateur "1" --> "0..*" Notification
+    Utilisateur "1" --> "0..*" Message
+    Utilisateur "1" --> "0..*" Conversation : participe
+    Utilisateur "1" --> "0..*" Report : signale
+
+    Entreprise "1" --> "0..*" Offre
+    Categorie "1" --> "0..*" Offre
+    Particulier "1" --> "0..*" Cv
+    Particulier "1" --> "0..*" Candidature
+    Offre "1" --> "0..*" Candidature
+    Particulier "0..*" --> "0..*" Competance
+    Offre "0..*" --> "0..*" Competance
+    Particulier "0..*" --> "0..*" Offre : suggestions
+    Conversation "1" --> "0..*" Message
+    Conversation "1" --> "0..*" Report
+

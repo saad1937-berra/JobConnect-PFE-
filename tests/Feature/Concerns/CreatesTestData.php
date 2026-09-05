@@ -17,6 +17,7 @@ trait CreatesTestData
     {
         return Utilisateur::create(array_merge([
             'email' => uniqid($role . '_') . '@example.test',
+            'email_verified_at' => now(),
             'pass' => Hash::make('password123'),
             'nom' => ucfirst($role),
             'prenom' => 'Test',
@@ -55,6 +56,7 @@ trait CreatesTestData
             'description' => 'Entreprise de test',
             'adresse' => 'Casablanca, Maroc',
             'site_web' => 'https://example.test',
+            'statut_validation' => Entreprise::STATUT_VALIDEE,
         ], $profile));
     }
 

@@ -26,8 +26,24 @@ class EntrepriseWebController extends Controller
 
         $stats = [
             'total_offres'          => $entreprise->offres()->count(),
-            'offres_actives'        => $entreprise->offres()->where('statut', 'active')->count(),
+            'offres_actives'        => $entreprise->peutPublier() ? $entreprise->offres()->where('statut', 'active')->count() : 0,
             'total_candidatures'    => Candidature::whereHas('offre', fn($q) => $q->where('entreprise_id', $entreprise->id))->count(),
+            'nouvelles_7j'          => Candidature::whereHas('offre', fn($q) => $q->where('entreprise_id', $entreprise->id))
+                                            ->where('created_at', '>=', now()->subDays(7))
+                                            ->count(),
+            'offres_par_statut'     => $entreprise->offres()
+                                            ->selectRaw('statut, count(*) as total')
+                                            ->groupBy('statut')
+                                            ->get(),
+            'candidatures_par_statut' => Candidature::whereHas('offre', fn($q) => $q->where('entreprise_id', $entreprise->id))
+                                            ->selectRaw('statut, count(*) as total')
+                                            ->groupBy('statut')
+                                            ->get(),
+            'offres_populaires'     => $entreprise->offres()
+                                            ->withCount('candidatures')
+                                            ->orderByDesc('candidatures_count')
+                                            ->take(5)
+                                            ->get(),
             'candidatures_recentes' => Candidature::whereHas('offre', fn($q) => $q->where('entreprise_id', $entreprise->id))
                                             ->with(['particulier.utilisateur', 'offre'])
                                             ->latest()
@@ -82,6 +98,12 @@ class EntrepriseWebController extends Controller
 
     public function creerOffre()
     {
+        if (!auth()->user()->entreprise->peutPublier()) {
+            return redirect()
+                ->route('entreprise.dashboard')
+                ->with('error', 'Votre entreprise doit etre validee par un admin et son email confirme avant de publier une offre.');
+        }
+
         $categories = Categorie::all();
         $competances = Competance::all();
         return view('entreprise.offre-form', compact('categories', 'competances'));
@@ -89,6 +111,10 @@ class EntrepriseWebController extends Controller
 
     public function storeOffre(Request $request)
     {
+        if (!auth()->user()->entreprise->peutPublier()) {
+            return back()->with('error', 'Votre entreprise doit etre validee par un admin et son email confirme avant de publier une offre.');
+        }
+
         $request->validate([
             'titre'           => 'required|string|max:255',
             'description'     => 'required|string',
@@ -128,6 +154,10 @@ class EntrepriseWebController extends Controller
 
     public function updateOffre(Request $request, $id)
     {
+        if (!auth()->user()->entreprise->peutPublier()) {
+            return back()->with('error', 'Votre entreprise doit etre validee par un admin et son email confirme avant de modifier une offre.');
+        }
+
         $request->validate([
             'titre'           => 'required|string|max:255',
             'description'     => 'required|string',

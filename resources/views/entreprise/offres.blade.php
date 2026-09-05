@@ -2,15 +2,18 @@
 @section('title', 'Mes offres')
 
 @section('ent-content')
+    @php $entrepriseValidee = auth()->user()->entreprise?->peutPublier(); @endphp
 
     <div class="ent-page-header">
         <div>
             <h1>Mes offres</h1>
             <p>{{ $offres->total() }} offre(s)</p>
         </div>
-        <a href="{{ route('entreprise.offres.creer') }}" class="ent-btn ent-btn-primary">
-            <i class="fas fa-plus"></i> Nouvelle offre
-        </a>
+        @if($entrepriseValidee)
+            <a href="{{ route('entreprise.offres.creer') }}" class="ent-btn ent-btn-primary">
+                <i class="fas fa-plus"></i> Nouvelle offre
+            </a>
+        @endif
     </div>
 
     <form method="GET" action="{{ route('entreprise.offres') }}" class="ent-filter-bar">
@@ -50,10 +53,12 @@
                         <td>{{ $offre->date_publication->format('d/m/Y') }}</td>
                         <td>
                             <div class="ent-actions">
-                                <a href="{{ route('offres.show', $offre->id) }}" class="ent-btn ent-btn-outline ent-btn-sm" title="Voir"><i class="fas fa-eye"></i></a>
-                                <a href="{{ route('entreprise.offres.edit', $offre->id) }}" class="ent-btn ent-btn-outline ent-btn-sm" title="Modifier"><i class="fas fa-edit"></i></a>
-                                <a href="{{ route('entreprise.offres.suggestions', $offre->id) }}" class="ent-btn ent-btn-outline ent-btn-sm" title="Suggestions"><i class="fas fa-magic"></i></a>
-                                <a href="{{ route('entreprise.offres.matching', $offre->id) }}" class="ent-btn ent-btn-outline ent-btn-sm" title="Matching"><i class="fas fa-chart-line"></i></a>
+                                @if($entrepriseValidee)
+                                    <a href="{{ route('offres.show', $offre->id) }}" class="ent-btn ent-btn-outline ent-btn-sm" title="Voir"><i class="fas fa-eye"></i></a>
+                                    <a href="{{ route('entreprise.offres.edit', $offre->id) }}" class="ent-btn ent-btn-outline ent-btn-sm" title="Modifier"><i class="fas fa-edit"></i></a>
+                                    <a href="{{ route('entreprise.offres.suggestions', $offre->id) }}" class="ent-btn ent-btn-outline ent-btn-sm" title="Suggestions"><i class="fas fa-magic"></i></a>
+                                    <a href="{{ route('entreprise.offres.matching', $offre->id) }}" class="ent-btn ent-btn-outline ent-btn-sm" title="Matching"><i class="fas fa-chart-line"></i></a>
+                                @endif
                                 <form method="POST" action="{{ route('entreprise.offres.supprimer', $offre->id) }}" onsubmit="return confirm('Supprimer ?')">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="ent-btn ent-btn-danger ent-btn-sm"><i class="fas fa-trash"></i></button>

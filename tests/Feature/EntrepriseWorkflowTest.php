@@ -13,6 +13,60 @@ class EntrepriseWorkflowTest extends TestCase
     use RefreshDatabase;
     use CreatesTestData;
 
+    public function test_entreprise_dashboard_shows_visual_statistics(): void
+    {
+        $entreprise = $this->makeEntreprise();
+        $particulier = $this->makeParticulier();
+        $offre = $this->makeOffre($entreprise, ['titre' => 'Laravel Analyst']);
+        $this->makeCandidature($particulier, $offre, ['statut' => 'en_cours']);
+
+        $this->actingAs($entreprise->utilisateur)
+            ->get(route('entreprise.dashboard'))
+            ->assertOk()
+            ->assertSee('Repartition des offres')
+            ->assertSee('Candidatures par statut')
+            ->assertSee('Offres les plus attractives');
+    }
+
+    public function test_pending_or_refused_enterprise_cannot_publish_offer(): void
+    {
+        $pending = $this->makeEntreprise(['statut_validation' => 'en_attente']);
+        $refused = $this->makeEntreprise(['statut_validation' => 'refusee']);
+        $unverified = $this->makeEntreprise(
+            ['statut_validation' => 'validee'],
+            ['email_verified_at' => null]
+        );
+
+        $this->actingAs($pending->utilisateur)
+            ->get(route('entreprise.offres.creer'))
+            ->assertRedirect(route('entreprise.dashboard'));
+
+        $this->actingAs($pending->utilisateur)
+            ->post(route('entreprise.offres.store'), [
+                'titre' => 'Pending Offer',
+                'description' => 'Should not be created',
+            ])
+            ->assertRedirect();
+
+        $this->actingAs($refused->utilisateur)
+            ->post(route('entreprise.offres.store'), [
+                'titre' => 'Refused Offer',
+                'description' => 'Should not be created',
+            ])
+            ->assertRedirect();
+
+        $this->actingAs($unverified->utilisateur)
+            ->post(route('entreprise.offres.store'), [
+                'titre' => 'Unverified Offer',
+                'description' => 'Should not be created',
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing('offres', ['titre' => 'Pending Offer']);
+        $this->assertDatabaseMissing('offres', ['titre' => 'Refused Offer']);
+        $this->assertDatabaseMissing('offres', ['titre' => 'Unverified Offer']);
+    }
+
     public function test_entreprise_can_create_update_and_delete_own_offer(): void
     {
         $entreprise = $this->makeEntreprise();

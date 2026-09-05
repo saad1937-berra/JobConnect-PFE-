@@ -61,7 +61,11 @@ class Offre extends Model
     {
         return $query
             ->where('statut', 'active')
-            ->whereHas('entreprise.utilisateur', fn($q) => $q->where('role', 'entreprise'));
+            ->whereHas('entreprise', fn($q) => $q
+                ->where('statut_validation', Entreprise::STATUT_VALIDEE)
+                ->whereHas('utilisateur', fn($userQuery) => $userQuery
+                    ->where('role', 'entreprise')
+                    ->whereNotNull('email_verified_at')));
     }
 
     public function scopeByCategorie($query, $categorieId)

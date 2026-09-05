@@ -28,6 +28,20 @@ class ApiWorkflowTest extends TestCase
             'pass' => 'password123',
         ])->assertOk()
             ->assertJsonStructure(['access_token', 'token_type', 'user']);
+
+        $this->postJson('/api/register', [
+            'email' => 'api-company@example.test',
+            'pass' => 'password123',
+            'pass_confirmation' => 'password123',
+            'nom' => 'Api Company',
+            'prenom' => 'Owner',
+            'role' => 'entreprise',
+        ])->assertCreated();
+
+        $this->assertDatabaseHas('entreprises', [
+            'nom' => 'Api Company',
+            'statut_validation' => 'en_attente',
+        ]);
     }
 
     public function test_api_role_routes_are_protected(): void
@@ -57,6 +71,23 @@ class ApiWorkflowTest extends TestCase
         $this->withHeader('Authorization', 'Bearer ' . $token)
             ->postJson('/api/particulier/postuler', ['offre_id' => $offre->id])
             ->assertStatus(409);
+    }
+
+    public function test_api_pending_enterprise_cannot_publish_offer(): void
+    {
+        $entreprise = $this->makeEntreprise(['statut_validation' => 'en_attente']);
+        $categorie = $this->makeCategorie();
+        $token = $entreprise->utilisateur->createToken('api')->plainTextToken;
+
+        $this->withHeader('Authorization', 'Bearer ' . $token)
+            ->postJson('/api/entreprise/offres', [
+                'titre' => 'API Pending Offer',
+                'description' => 'Should not be created',
+                'categorie_id' => $categorie->id,
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('offres', ['titre' => 'API Pending Offer']);
     }
 
     public function test_api_admin_blocking_revokes_existing_tokens(): void

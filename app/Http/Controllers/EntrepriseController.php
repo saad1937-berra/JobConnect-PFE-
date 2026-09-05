@@ -26,6 +26,11 @@ class EntrepriseController extends Controller
         ]);
 
         $entreprise = $request->user()->entreprise;
+        if (!$entreprise->peutPublier()) {
+            return response()->json([
+                'message' => 'Votre entreprise doit etre validee par un admin et son email confirme avant de publier une offre.',
+            ], 403);
+        }
 
         $offre = Offre::create([
             ...$request->only(['titre', 'description', 'categorie_id', 'contrat',
@@ -42,6 +47,12 @@ class EntrepriseController extends Controller
     public function modifier(Request $request, $id)
     {
         $entreprise = $request->user()->entreprise;
+        if (!$entreprise->peutPublier()) {
+            return response()->json([
+                'message' => 'Votre entreprise doit etre validee par un admin et son email confirme avant de modifier une offre.',
+            ], 403);
+        }
+
         $offre = Offre::where('id', $id)->where('entreprise_id', $entreprise->id)->firstOrFail();
 
         $offre->update($request->only(['titre', 'description', 'categorie_id', 'contrat',
@@ -132,7 +143,7 @@ class EntrepriseController extends Controller
 
         return response()->json([
             'total_offres'       => $entreprise->offres()->count(),
-            'offres_actives'     => $entreprise->offres()->where('statut', 'active')->count(),
+            'offres_actives'     => $entreprise->peutPublier() ? $entreprise->offres()->where('statut', 'active')->count() : 0,
             'total_candidatures' => Candidature::whereHas('offre', fn($q) => $q->where('entreprise_id', $entreprise->id))->count(),
             'candidatures_recentes' => Candidature::whereHas('offre', fn($q) => $q->where('entreprise_id', $entreprise->id))
                                                    ->with(['particulier.utilisateur', 'offre'])

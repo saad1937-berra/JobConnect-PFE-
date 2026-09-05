@@ -14,6 +14,7 @@ class Utilisateur extends Authenticatable
 
     protected $fillable = [
         'email',
+        'email_verified_at',
         'pass',
         'nom',
         'prenom',
@@ -27,6 +28,7 @@ class Utilisateur extends Authenticatable
 
     protected $casts = [
         'date_inscription' => 'datetime',
+        'email_verified_at' => 'datetime',
     ];
 
     public function getAuthPassword()
@@ -85,5 +87,17 @@ class Utilisateur extends Authenticatable
     public function isEntreprise()
     {
         return $this->role === 'entreprise';
+    }
+
+    public function hasVerifiedEmail(): bool
+    {
+        return $this->email_verified_at !== null;
+    }
+
+    public function markEmailAsVerified(): bool
+    {
+        return $this->forceFill([
+            'email_verified_at' => now(),
+        ])->save();
     }
 }

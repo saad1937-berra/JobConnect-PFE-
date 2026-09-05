@@ -27,7 +27,7 @@ class HomeController extends Controller
                 ->get();
 
             $dernieresCandidatures = $particulier->candidatures()
-                ->whereHas('offre.entreprise.utilisateur', fn($q) => $q->where('role', 'entreprise'))
+                ->whereHas('offre.entreprise', fn($q) => $q->activeAccount())
                 ->with('offre.entreprise')
                 ->latest()
                 ->take(4)
@@ -82,15 +82,19 @@ class HomeController extends Controller
                 ->take(5)
                 ->get();
 
-            $offresPourMatching = $entreprise->offres()
-                ->where('statut', 'active')
-                ->with(['competances', 'categorie'])
-                ->latest()
-                ->take(4)
-                ->get();
+            $offresPourMatching = $entreprise->peutPublier()
+                ? $entreprise->offres()
+                    ->where('statut', 'active')
+                    ->with(['competances', 'categorie'])
+                    ->latest()
+                    ->take(4)
+                    ->get()
+                : collect();
 
             $particuliers = Particulier::with(['utilisateur', 'competances', 'cv'])
-                ->whereHas('utilisateur', fn($q) => $q->where('role', 'particulier'))
+                ->whereHas('utilisateur', fn($q) => $q
+                    ->where('role', 'particulier')
+                    ->whereNotNull('email_verified_at'))
                 ->get();
 
             $candidatsMatches = $offresPourMatching
@@ -123,7 +127,7 @@ class HomeController extends Controller
 
             $stats = [
                 'total_offres'       => $entreprise->offres()->count(),
-                'offres_actives'     => $entreprise->offres()->where('statut', 'active')->count(),
+                'offres_actives'     => $entreprise->peutPublier() ? $entreprise->offres()->where('statut', 'active')->count() : 0,
                 'total_candidatures' => Candidature::whereHas('offre', fn($q) => $q->where('entreprise_id', $entreprise->id))->count(),
             ];
 
@@ -136,7 +140,7 @@ class HomeController extends Controller
                 'total_utilisateurs' => Utilisateur::count(),
                 'total_entreprises'  => Utilisateur::where('role', 'entreprise')->count(),
                 'total_offres'       => Offre::count(),
-                'offres_actives'     => Offre::where('statut', 'active')->count(),
+                'offres_actives'     => Offre::active()->count(),
                 'total_candidatures' => Candidature::count(),
             ];
 

@@ -19,6 +19,7 @@ class UtilisateurSeeder extends Seeder
                 'nom'    => 'Admin',
                 'prenom' => 'Super',
                 'role'   => 'admin',
+                'email_verified_at' => now(),
             ]
         );
 
@@ -48,6 +49,7 @@ class UtilisateurSeeder extends Seeder
                     'nom'    => $nom,
                     'prenom' => $prenom,
                     'role'   => 'particulier',
+                    'email_verified_at' => now(),
                 ]
             );
 

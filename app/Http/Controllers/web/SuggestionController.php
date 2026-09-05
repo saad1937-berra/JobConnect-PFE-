@@ -13,6 +13,10 @@ class SuggestionController extends Controller
      */
     public function candidat()
     {
+        if (!auth()->user()->hasVerifiedEmail()) {
+            return redirect()->route('home')->with('error', 'Confirmez votre adresse email avant d acceder aux suggestions.');
+        }
+
         $particulier  = auth()->user()->particulier->load(['competances', 'candidatures']);
         $suggestions  = SuggestionService::offresParCompetences($particulier, 12);
 
@@ -25,6 +29,12 @@ class SuggestionController extends Controller
     public function entreprise($offreId)
     {
         $entreprise = auth()->user()->entreprise;
+        if (!$entreprise->peutPublier()) {
+            return redirect()
+                ->route('entreprise.dashboard')
+                ->with('error', 'Votre entreprise doit etre validee et son email confirme pour acceder aux suggestions de candidats.');
+        }
+
         $offre      = Offre::where('entreprise_id', $entreprise->id)->findOrFail($offreId);
         $suggestions = SuggestionService::candidatsParOffre($offre, 12);
 

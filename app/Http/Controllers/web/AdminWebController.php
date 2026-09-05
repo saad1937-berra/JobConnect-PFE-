@@ -21,10 +21,13 @@ class AdminWebController extends Controller
             'total_particuliers'      => Utilisateur::where('role', 'particulier')->count(),
             'total_entreprises'       => Utilisateur::where('role', 'entreprise')->count(),
             'total_offres'            => Offre::count(),
-            'offres_actives'          => Offre::where('statut', 'active')->count(),
+            'offres_actives'          => Offre::active()->count(),
             'total_candidatures'      => Candidature::count(),
             'signalements_ouverts'    => Report::whereIn('status', ['nouveau', 'en_cours'])->count(),
             'messages_total'          => \App\Models\Message::count(),
+            'utilisateurs_par_role'   => Utilisateur::selectRaw('role, count(*) as total')
+                                            ->groupBy('role')
+                                            ->get(),
             'candidatures_par_statut' => Candidature::selectRaw('statut, count(*) as total')
                                             ->groupBy('statut')
                                             ->get(),
@@ -74,6 +77,7 @@ class AdminWebController extends Controller
     {
         $entreprises = Entreprise::with('utilisateur')
             ->when($request->search, fn($q) => $q->where('nom', 'like', "%{$request->search}%"))
+            ->when($request->statut_validation, fn($q) => $q->where('statut_validation', $request->statut_validation))
             ->withCount('offres')
             ->latest()
             ->paginate(20);
@@ -83,9 +87,26 @@ class AdminWebController extends Controller
 
     public function validerEntreprise($id)
     {
-        Entreprise::findOrFail($id)->utilisateur->update(['role' => 'entreprise']);
+        $entreprise = Entreprise::with('utilisateur')->findOrFail($id);
 
-        return back()->with('success', 'Entreprise validée avec succès.');
+        if (!$entreprise->utilisateur?->hasVerifiedEmail()) {
+            return back()->with('error', 'Cette entreprise doit confirmer son adresse email avant validation.');
+        }
+
+        $entreprise->update([
+            'statut_validation' => Entreprise::STATUT_VALIDEE,
+        ]);
+
+        return back()->with('success', 'Entreprise validee avec succes.');
+    }
+
+    public function refuserEntreprise($id)
+    {
+        Entreprise::findOrFail($id)->update([
+            'statut_validation' => Entreprise::STATUT_REFUSEE,
+        ]);
+
+        return back()->with('success', 'Entreprise refusee.');
     }
 
     // ── Utilisateurs ─────────────────────────────────────────────────

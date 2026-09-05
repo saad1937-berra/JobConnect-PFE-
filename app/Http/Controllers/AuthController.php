@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Entreprise;
 use App\Models\Particulier;
 use App\Models\Utilisateur;
+use App\Services\EmailVerificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -34,11 +35,14 @@ class AuthController extends Controller
             Entreprise::create([
                 'utilisateur_id' => $utilisateur->id,
                 'nom' => $request->nom,
+                'statut_validation' => Entreprise::STATUT_EN_ATTENTE,
             ]);
         }
 
+        EmailVerificationService::send($utilisateur);
+
         return response()->json([
-            'message' => 'Inscription reussie.',
+            'message' => 'Inscription reussie. Un email de confirmation a ete envoye.',
             'user'    => $utilisateur,
         ], 201);
     }
@@ -75,6 +79,19 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Deconnexion reussie.']);
+    }
+
+    public function resendVerificationEmail(Request $request)
+    {
+        $utilisateur = $request->user();
+
+        if ($utilisateur->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Adresse email deja confirmee.']);
+        }
+
+        EmailVerificationService::send($utilisateur);
+
+        return response()->json(['message' => 'Nouveau lien de confirmation envoye.']);
     }
 
     public function resetPass(Request $request)

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Carbon;
 use App\Mail\ResetPasswordMail;
+use App\Services\EmailVerificationService;
 
 class AuthWebController extends Controller
 {
@@ -74,11 +75,18 @@ class AuthWebController extends Controller
         if ($request->role === 'particulier') {
             Particulier::create(['utilisateur_id' => $user->id]);
         } else {
-            Entreprise::create(['utilisateur_id' => $user->id, 'nom' => $request->nom]);
+            Entreprise::create([
+                'utilisateur_id' => $user->id,
+                'nom' => $request->nom,
+                'statut_validation' => Entreprise::STATUT_EN_ATTENTE,
+            ]);
         }
 
+        EmailVerificationService::send($user);
         Auth::login($user);
-        return redirect()->route('home')->with('success', 'Bienvenue sur JobConnect !');
+        return redirect()
+            ->route('home')
+            ->with('success', 'Bienvenue sur JobConnect ! Un email de confirmation vous a ete envoye.');
     }
 
     public function logout(Request $request)
@@ -125,6 +133,37 @@ class AuthWebController extends Controller
     {
         return route('home');
     }
+
+    public function verifyEmail(Request $request, $id, $hash)
+    {
+        $user = Utilisateur::findOrFail($id);
+
+        if (!hash_equals((string) $hash, sha1($user->email))) {
+            abort(403, 'Lien de verification invalide.');
+        }
+
+        if (!$user->hasVerifiedEmail()) {
+            $user->markEmailAsVerified();
+        }
+
+        return redirect()
+            ->route('home')
+            ->with('success', 'Adresse email confirmee avec succes.');
+    }
+
+    public function resendVerificationEmail(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->hasVerifiedEmail()) {
+            return back()->with('success', 'Votre adresse email est deja confirmee.');
+        }
+
+        EmailVerificationService::send($user);
+
+        return back()->with('success', 'Un nouveau lien de confirmation vous a ete envoye.');
+    }
+
     public function showForgotForm()
     {
         return view('auth.forgot-password');

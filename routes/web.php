@@ -21,6 +21,12 @@ Route::post('/login',   [AuthWebController::class, 'login'])->middleware('thrott
 Route::get('/register', [AuthWebController::class, 'showRegister'])->name('register');
 Route::post('/register',[AuthWebController::class, 'register'])->middleware('throttle:5,1');
 Route::post('/logout',  [AuthWebController::class, 'logout'])->name('logout')->middleware('auth');
+Route::get('/email/verify/{id}/{hash}', [AuthWebController::class, 'verifyEmail'])
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
+Route::post('/email/verification-notification', [AuthWebController::class, 'resendVerificationEmail'])
+    ->middleware(['auth', 'not_blocked', 'throttle:3,1'])
+    ->name('verification.send');
 
 Route::get('/mot-de-passe/oublie', [AuthWebController::class, 'showForgotForm'])->name('password.request');
 Route::post('/mot-de-passe/email',  [AuthWebController::class, 'sendResetLink'])->name('password.email')->middleware('throttle:3,1');
@@ -100,6 +106,7 @@ Route::middleware(['auth', 'not_blocked'])->group(function () {
 
         Route::get('/entreprises',                      [AdminWebController::class, 'entreprises'])->name('entreprises');
         Route::patch('/entreprises/{id}/valider',       [AdminWebController::class, 'validerEntreprise'])->name('entreprises.valider');
+        Route::patch('/entreprises/{id}/refuser',       [AdminWebController::class, 'refuserEntreprise'])->name('entreprises.refuser');
 
         Route::get('/utilisateurs',                     [AdminWebController::class, 'utilisateurs'])->name('utilisateurs');
         Route::patch('/utilisateurs/{id}/bloquer',      [AdminWebController::class, 'bloquerUtilisateur'])->name('utilisateurs.bloquer');

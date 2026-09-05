@@ -13,10 +13,25 @@ class AdminController extends Controller
     // Valider une entreprise
     public function validerEntreprise(Request $request, $id)
     {
-        $entreprise = Entreprise::findOrFail($id);
-        $entreprise->utilisateur->update(['role' => 'entreprise']);
+        $entreprise = Entreprise::with('utilisateur')->findOrFail($id);
 
-        return response()->json(['message' => 'Entreprise validée.']);
+        if (!$entreprise->utilisateur?->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Cette entreprise doit confirmer son adresse email avant validation.',
+            ], 422);
+        }
+
+        $entreprise->update(['statut_validation' => Entreprise::STATUT_VALIDEE]);
+
+        return response()->json(['message' => 'Entreprise validee.']);
+    }
+
+    public function refuserEntreprise(Request $request, $id)
+    {
+        $entreprise = Entreprise::findOrFail($id);
+        $entreprise->update(['statut_validation' => Entreprise::STATUT_REFUSEE]);
+
+        return response()->json(['message' => 'Entreprise refusee.']);
     }
 
     // Bloquer un utilisateur (entreprise ou particulier)
@@ -64,6 +79,7 @@ class AdminController extends Controller
     {
         $entreprises = Entreprise::with('utilisateur')
             ->when($request->search, fn($q) => $q->where('nom', 'like', "%{$request->search}%"))
+            ->when($request->statut_validation, fn($q) => $q->where('statut_validation', $request->statut_validation))
             ->paginate(20);
 
         return response()->json($entreprises);
@@ -77,7 +93,7 @@ class AdminController extends Controller
             'total_particuliers'  => Utilisateur::where('role', 'particulier')->count(),
             'total_entreprises'   => Utilisateur::where('role', 'entreprise')->count(),
             'total_offres'        => Offre::count(),
-            'offres_actives'      => Offre::where('statut', 'active')->count(),
+            'offres_actives'      => Offre::active()->count(),
             'total_candidatures'  => Candidature::count(),
             'candidatures_par_statut' => Candidature::selectRaw('statut, count(*) as total')
                                                      ->groupBy('statut')

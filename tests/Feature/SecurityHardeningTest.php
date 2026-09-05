@@ -92,6 +92,7 @@ class SecurityHardeningTest extends TestCase
     {
         $user = Utilisateur::create([
             'email' => uniqid($role . '_') . '@example.test',
+            'email_verified_at' => now(),
             'pass' => Hash::make('password123'),
             'nom' => 'Security',
             'prenom' => 'Test',

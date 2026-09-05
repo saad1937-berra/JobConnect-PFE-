@@ -1,0 +1,160 @@
+erDiagram
+    UTILISATEURS {
+        int id PK
+        string email
+        string pass
+        string nom
+        string prenom
+        enum role
+        timestamp email_verified_at
+        timestamp date_inscription
+    }
+
+    PARTICULIERS {
+        int id PK
+        int utilisateur_id FK
+        text bio
+        string tel
+        string adresse
+        date date_naissance
+        string niveau_etude
+        string photo
+        string cv_titre
+        json cv_experiences
+        json cv_formations
+        json cv_langues
+        json cv_loisirs
+    }
+
+    ENTREPRISES {
+        int id PK
+        int utilisateur_id FK
+        string nom
+        string secteur
+        text description
+        string adresse
+        string site_web
+        string logo
+        string statut_validation
+    }
+
+    CATEGORIES {
+        int id PK
+        string nom
+        text description
+    }
+
+    OFFRES {
+        int id PK
+        int entreprise_id FK
+        int categorie_id FK
+        string titre
+        text description
+        string contrat
+        string duree
+        string localisation
+        string niveau_etude
+        enum statut
+        string salaire
+        timestamp date_publication
+        timestamp date_expiration
+    }
+
+    CANDIDATURES {
+        int id PK
+        int particulier_id FK
+        int offre_id FK
+        timestamp date
+        enum statut
+        text commentaire
+    }
+
+    CVS {
+        int id PK
+        int particulier_id FK
+        string cv_path
+        longtext cv_text
+    }
+
+    COMPETANCES {
+        int id PK
+        string nom
+        text description
+    }
+
+    PARTICULIER_COMPETANCE {
+        int particulier_id FK
+        int competance_id FK
+        enum niveau
+    }
+
+    OFFRE_COMPETANCE {
+        int offre_id FK
+        int competance_id FK
+    }
+
+    PARTICULIER_OFFRE {
+        int particulier_id FK
+        int offre_id FK
+        string type
+    }
+
+    NOTIFICATIONS {
+        int id PK
+        int utilisateur_id FK
+        string type
+        text message
+        timestamp date_lecture
+    }
+
+    CONVERSATIONS {
+        int id PK
+        int user_one_id FK
+        int user_two_id FK
+        timestamp last_message_at
+    }
+
+    MESSAGES {
+        int id PK
+        int conversation_id FK
+        int sender_id FK
+        text body
+        timestamp read_at
+    }
+
+    REPORTS {
+        int id PK
+        int conversation_id FK
+        int reporter_id FK
+        int reported_id FK
+        text reason
+        enum status
+        text admin_note
+        timestamp resolved_at
+    }
+
+    UTILISATEURS ||--o| PARTICULIERS : possede
+    UTILISATEURS ||--o| ENTREPRISES : possede
+    UTILISATEURS ||--o{ NOTIFICATIONS : recoit
+    UTILISATEURS ||--o{ MESSAGES : envoie
+    UTILISATEURS ||--o{ CONVERSATIONS : user_one
+    UTILISATEURS ||--o{ CONVERSATIONS : user_two
+    UTILISATEURS ||--o{ REPORTS : reporter
+    UTILISATEURS ||--o{ REPORTS : reported
+
+    ENTREPRISES ||--o{ OFFRES : publie
+    CATEGORIES ||--o{ OFFRES : classe
+    PARTICULIERS ||--o{ CVS : possede
+    PARTICULIERS ||--o{ CANDIDATURES : envoie
+    OFFRES ||--o{ CANDIDATURES : recoit
+
+    PARTICULIERS ||--o{ PARTICULIER_COMPETANCE : associe
+    COMPETANCES ||--o{ PARTICULIER_COMPETANCE : associe
+    OFFRES ||--o{ OFFRE_COMPETANCE : exige
+    COMPETANCES ||--o{ OFFRE_COMPETANCE : exigee
+    PARTICULIERS ||--o{ PARTICULIER_OFFRE : suggere
+    OFFRES ||--o{ PARTICULIER_OFFRE : suggeree
+
+    CONVERSATIONS ||--o{ MESSAGES : contient
+    CONVERSATIONS ||--o{ REPORTS : concerne
+

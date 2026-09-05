@@ -35,6 +35,7 @@ class EntrepriseSeeder extends Seeder
                     'nom'    => explode(' ', $nom)[0],
                     'prenom' => 'RH',
                     'role'   => 'entreprise',
+                    'email_verified_at' => now(),
                 ]
             );
 
@@ -46,6 +47,7 @@ class EntrepriseSeeder extends Seeder
                     'description' => "Entreprise marocaine specialisee en {$secteur}, avec des recrutements actifs sur JobConnect.",
                     'adresse'     => $adresse,
                     'site_web'    => $siteWeb,
+                    'statut_validation' => Entreprise::STATUT_VALIDEE,
                 ]
             );
         }

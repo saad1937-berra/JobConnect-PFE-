@@ -64,7 +64,7 @@
                     </div>
                     <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--ent-border);">
                         <span style="font-size:0.85rem;color:var(--ent-muted);">Offres actives</span>
-                        <strong style="font-family:var(--ent-font-head);font-size:1.2rem;color:var(--ent-green);">{{ $entreprise->offres()->where('statut','active')->count() }}</strong>
+                        <strong style="font-family:var(--ent-font-head);font-size:1.2rem;color:var(--ent-green);">{{ $entreprise->peutPublier() ? $entreprise->offres()->where('statut','active')->count() : 0 }}</strong>
                     </div>
                     <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;">
                         <span style="font-size:0.85rem;color:var(--ent-muted);">Candidatures reçues</span>

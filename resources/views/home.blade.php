@@ -762,7 +762,10 @@
 
             {{-- ENTREPRISE --}}
         @elseif(auth()->user()->isEntreprise())
-            @php $entreprise = auth()->user()->entreprise; @endphp
+            @php
+                $entreprise = auth()->user()->entreprise;
+                $entrepriseValidee = $entreprise->peutPublier();
+            @endphp
 
             <section class="hero">
                 <div class="hero-inner">
@@ -770,8 +773,10 @@
                     <h1>Bienvenue, <em>{{ $entreprise->nom }}</em></h1>
                     <p>Gérez vos offres d'emploi, consultez les candidatures et trouvez les meilleurs talents.</p>
                     <div class="hero-actions">
-                        <a href="{{ route('entreprise.offres.creer') }}" class="btn btn-primary"
-                            style="font-size:1rem;padding:0.8rem 1.8rem;"><i class="fas fa-plus"></i> Publier une offre</a>
+                        @if($entrepriseValidee)
+                            <a href="{{ route('entreprise.offres.creer') }}" class="btn btn-primary"
+                                style="font-size:1rem;padding:0.8rem 1.8rem;"><i class="fas fa-plus"></i> Publier une offre</a>
+                        @endif
                         <a href="{{ route('entreprise.candidatures') }}" class="btn btn-outline"
                             style="color:var(--paper);border-color:rgba(255,255,255,0.2);font-size:1rem;padding:0.8rem 1.8rem;"><i
                                 class="fas fa-users"></i> Voir les candidatures</a>
@@ -785,12 +790,20 @@
             </section>
 
             <div class="container" style="padding-top:2.5rem;">
+                @if(!$entrepriseValidee && auth()->user()->hasVerifiedEmail())
+                    <div style="background:{{ $entreprise->isRefusee() ? '#fef2f2' : '#fffbeb' }};border:1px solid {{ $entreprise->isRefusee() ? '#fecaca' : '#fde68a' }};color:{{ $entreprise->isRefusee() ? '#991b1b' : '#92400e' }};border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.25rem;">
+                        <strong>{{ $entreprise->isRefusee() ? 'Entreprise refusee' : 'Validation en attente' }}</strong>
+                        <p style="margin-top:0.25rem;color:inherit;">Votre entreprise doit etre validee par un admin avant de publier des offres et apparaitre aux candidats.</p>
+                    </div>
+                @endif
                 <div class="table-card" style="margin-bottom:1.25rem;">
                     <div class="table-header">
                         <h3><i class="fas fa-briefcase" style="color:var(--accent);margin-right:0.5rem;"></i> Mes offres
                             récentes</h3>
-                        <a href="{{ route('entreprise.offres.creer') }}" class="btn btn-primary btn-sm"><i
-                                class="fas fa-plus"></i> Nouvelle offre</a>
+                        @if($entrepriseValidee)
+                            <a href="{{ route('entreprise.offres.creer') }}" class="btn btn-primary btn-sm"><i
+                                    class="fas fa-plus"></i> Nouvelle offre</a>
+                        @endif
                     </div>
                     <table>
                         <thead>
@@ -822,6 +835,7 @@
                                     </td>
                                     <td>
                                         <div style="display:flex;gap:0.4rem;">
+                                            @if($entrepriseValidee)
                                             <a href="{{ route('entreprise.offres.edit', $offre->id) }}"
                                                 class="btn btn-outline btn-sm"><i class="fas fa-edit"></i></a>
                                             <a href="{{ route('entreprise.offres.suggestions', $offre->id) }}"
@@ -830,6 +844,7 @@
                                             <a href="{{ route('entreprise.offres.matching', $offre->id) }}"
                                                 class="btn btn-outline btn-sm" title="Matching"><i
                                                     class="fas fa-chart-line"></i></a>
+                                            @endif
                                             <form method="POST"
                                                 action="{{ route('entreprise.offres.supprimer', $offre->id) }}"
                                                 onsubmit="return confirm('Supprimer ?')">

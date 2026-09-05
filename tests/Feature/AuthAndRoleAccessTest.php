@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Mail\VerifyEmailMail;
+use App\Services\EmailVerificationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\Feature\Concerns\CreatesTestData;
 use Tests\TestCase;
 
@@ -21,6 +24,8 @@ class AuthAndRoleAccessTest extends TestCase
 
     public function test_registration_creates_particulier_profile(): void
     {
+        Mail::fake();
+
         $this->post('/register', [
             'email' => 'new-candidat@example.test',
             'pass' => 'password123',
@@ -33,12 +38,16 @@ class AuthAndRoleAccessTest extends TestCase
         $this->assertDatabaseHas('utilisateurs', [
             'email' => 'new-candidat@example.test',
             'role' => 'particulier',
+            'email_verified_at' => null,
         ]);
         $this->assertDatabaseCount('particuliers', 1);
+        Mail::assertSent(VerifyEmailMail::class, fn($mail) => $mail->hasTo('new-candidat@example.test'));
     }
 
     public function test_registration_creates_entreprise_profile(): void
     {
+        Mail::fake();
+
         $this->post('/register', [
             'email' => 'new-company@example.test',
             'pass' => 'password123',
@@ -51,8 +60,23 @@ class AuthAndRoleAccessTest extends TestCase
         $this->assertDatabaseHas('utilisateurs', [
             'email' => 'new-company@example.test',
             'role' => 'entreprise',
+            'email_verified_at' => null,
         ]);
-        $this->assertDatabaseHas('entreprises', ['nom' => 'Company']);
+        $this->assertDatabaseHas('entreprises', [
+            'nom' => 'Company',
+            'statut_validation' => 'en_attente',
+        ]);
+        Mail::assertSent(VerifyEmailMail::class, fn($mail) => $mail->hasTo('new-company@example.test'));
+    }
+
+    public function test_email_verification_link_marks_user_as_verified(): void
+    {
+        $user = $this->makeUser('particulier', ['email_verified_at' => null]);
+
+        $this->get(EmailVerificationService::verificationUrl($user))
+            ->assertRedirect(route('home'));
+
+        $this->assertNotNull($user->fresh()->email_verified_at);
     }
 
     public function test_login_rejects_blocked_user(): void

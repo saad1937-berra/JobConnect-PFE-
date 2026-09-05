@@ -14,6 +14,10 @@ class MatchingController extends Controller
      */
     public function scoreOffre($offreId)
     {
+        if (!auth()->user()->hasVerifiedEmail()) {
+            return redirect()->route('home')->with('error', 'Confirmez votre adresse email avant d acceder au matching.');
+        }
+
         $particulier = auth()->user()->particulier->load(['competances', 'cv', 'candidatures']);
         $offre       = Offre::active()->with(['entreprise', 'categorie'])->findOrFail($offreId);
         $matching    = MatchingService::calculer($particulier, $offre);
@@ -26,6 +30,10 @@ class MatchingController extends Controller
      */
     public function offresMatchees()
     {
+        if (!auth()->user()->hasVerifiedEmail()) {
+            return redirect()->route('home')->with('error', 'Confirmez votre adresse email avant d acceder au matching.');
+        }
+
         $particulier = auth()->user()->particulier->load(['competances', 'cv', 'candidatures']);
 
         $offres = Offre::active()
@@ -44,12 +52,20 @@ class MatchingController extends Controller
     public function candidatsMatches($offreId)
     {
         $entreprise = auth()->user()->entreprise;
+        if (!$entreprise->peutPublier()) {
+            return redirect()
+                ->route('entreprise.dashboard')
+                ->with('error', 'Votre entreprise doit etre validee et son email confirme pour acceder au matching candidat.');
+        }
+
         $offre      = Offre::where('entreprise_id', $entreprise->id)
                            ->with(['entreprise', 'categorie'])
                            ->findOrFail($offreId);
 
         $particuliers = Particulier::with(['utilisateur', 'competances', 'cv'])
-            ->whereHas('utilisateur', fn($q) => $q->where('role', 'particulier'))
+            ->whereHas('utilisateur', fn($q) => $q
+                ->where('role', 'particulier')
+                ->whereNotNull('email_verified_at'))
             ->get();
 
         $candidatsMatches = MatchingService::candidatsPourOffre($offre, $particuliers);

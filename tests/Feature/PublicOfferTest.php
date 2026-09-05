@@ -79,6 +79,42 @@ class PublicOfferTest extends TestCase
             ->assertNotFound();
     }
 
+    public function test_public_pages_hide_pending_and_refused_company_offers(): void
+    {
+        $validatedEntreprise = $this->makeEntreprise(['nom' => 'Validated Company']);
+        $pendingEntreprise = $this->makeEntreprise([
+            'nom' => 'Pending Company',
+            'statut_validation' => 'en_attente',
+        ]);
+        $refusedEntreprise = $this->makeEntreprise([
+            'nom' => 'Refused Company',
+            'statut_validation' => 'refusee',
+        ]);
+        $unverifiedEntreprise = $this->makeEntreprise(
+            ['nom' => 'Unverified Company'],
+            ['email_verified_at' => null]
+        );
+
+        $this->makeOffre($validatedEntreprise, ['titre' => 'Visible Validated Offer']);
+        $pendingOffer = $this->makeOffre($pendingEntreprise, ['titre' => 'Hidden Pending Offer']);
+        $refusedOffer = $this->makeOffre($refusedEntreprise, ['titre' => 'Hidden Refused Offer']);
+        $unverifiedOffer = $this->makeOffre($unverifiedEntreprise, ['titre' => 'Hidden Unverified Offer']);
+
+        $this->get(route('offres.index'))
+            ->assertOk()
+            ->assertSee('Visible Validated Offer')
+            ->assertDontSee('Hidden Pending Offer')
+            ->assertDontSee('Hidden Refused Offer')
+            ->assertDontSee('Hidden Unverified Offer')
+            ->assertDontSee('Pending Company')
+            ->assertDontSee('Refused Company')
+            ->assertDontSee('Unverified Company');
+
+        $this->get(route('offres.show', $pendingOffer->id))->assertNotFound();
+        $this->get(route('offres.show', $refusedOffer->id))->assertNotFound();
+        $this->get(route('offres.show', $unverifiedOffer->id))->assertNotFound();
+    }
+
     public function test_privacy_page_is_public(): void
     {
         $this->get(route('privacy'))

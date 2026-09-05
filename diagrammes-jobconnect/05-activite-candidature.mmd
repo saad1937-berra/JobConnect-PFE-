@@ -1,0 +1,22 @@
+flowchart TD
+    A([Debut]) --> B{Utilisateur connecte ?}
+    B -- Non --> C[Se connecter ou creer un compte]
+    C --> D{Email verifie ?}
+    B -- Oui --> D
+    D -- Non --> E[Demander verification email]
+    E --> Z([Fin])
+    D -- Oui --> F[Completer profil candidat]
+    F --> G[Ajouter competences]
+    G --> H[Deposer ou generer CV]
+    H --> I[Consulter les offres]
+    I --> J[Selectionner une offre]
+    J --> K[Afficher score de matching]
+    K --> L{Deja postule ?}
+    L -- Oui --> M[Afficher message candidature existante]
+    M --> Z
+    L -- Non --> N[Envoyer candidature]
+    N --> O[Creer candidature en attente]
+    O --> P[Notifier entreprise]
+    P --> Q[Afficher confirmation]
+    Q --> Z([Fin])
+

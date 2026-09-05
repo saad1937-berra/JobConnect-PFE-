@@ -19,7 +19,12 @@ class AdminWorkflowTest extends TestCase
         $entreprise = $this->makeEntreprise();
         $this->makeOffre($entreprise);
 
-        $this->actingAs($admin)->get(route('admin.dashboard'))->assertOk();
+        $this->actingAs($admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee('Repartition utilisateurs')
+            ->assertSee('Pipeline candidatures')
+            ->assertSee('Top categories');
         $this->actingAs($admin)->get(route('admin.entreprises'))->assertOk();
         $this->actingAs($admin)->get(route('admin.utilisateurs'))->assertOk();
         $this->actingAs($admin)->get(route('admin.offres'))->assertOk();
@@ -55,6 +60,61 @@ class AdminWorkflowTest extends TestCase
             ->assertRedirect();
 
         $this->assertDatabaseMissing('categories', ['id' => $category->id]);
+    }
+
+    public function test_admin_can_validate_and_refuse_enterprise_accounts(): void
+    {
+        $admin = $this->makeAdmin();
+        $pending = $this->makeEntreprise([
+            'nom' => 'Pending Company',
+            'statut_validation' => 'en_attente',
+        ]);
+        $refusable = $this->makeEntreprise([
+            'nom' => 'Refusable Company',
+            'statut_validation' => 'en_attente',
+        ]);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.entreprises.valider', $pending->id))
+            ->assertRedirect();
+
+        $this->actingAs($admin)
+            ->patch(route('admin.entreprises.refuser', $refusable->id))
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('entreprises', [
+            'id' => $pending->id,
+            'statut_validation' => 'validee',
+        ]);
+        $this->assertDatabaseHas('entreprises', [
+            'id' => $refusable->id,
+            'statut_validation' => 'refusee',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.entreprises', ['statut_validation' => 'refusee']))
+            ->assertOk()
+            ->assertSee('Refusable Company')
+            ->assertDontSee('Pending Company');
+    }
+
+    public function test_admin_cannot_validate_enterprise_before_email_verification(): void
+    {
+        $admin = $this->makeAdmin();
+        $entreprise = $this->makeEntreprise(
+            ['statut_validation' => 'en_attente'],
+            ['email_verified_at' => null]
+        );
+
+        $this->actingAs($admin)
+            ->patch(route('admin.entreprises.valider', $entreprise->id))
+            ->assertRedirect()
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseHas('entreprises', [
+            'id' => $entreprise->id,
+            'statut_validation' => 'en_attente',
+        ]);
     }
 
     public function test_admin_can_manage_competences(): void

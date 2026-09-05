@@ -82,7 +82,9 @@ class SuggestionService
         $offreCompIds = $offre->competances->pluck('id');
 
         $particuliers = Particulier::with(['utilisateur', 'competances', 'cv'])
-            ->whereHas('utilisateur', fn($q) => $q->where('role', 'particulier'))
+            ->whereHas('utilisateur', fn($q) => $q
+                ->where('role', 'particulier')
+                ->whereNotNull('email_verified_at'))
             ->when($offreCompIds->isNotEmpty(), function ($query) use ($offreCompIds) {
                 $query->where(function ($q) use ($offreCompIds) {
                     $q->whereHas('competances', fn($subQuery) => $subQuery->whereIn('competances.id', $offreCompIds))

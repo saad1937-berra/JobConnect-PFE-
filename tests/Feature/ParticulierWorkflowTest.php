@@ -90,6 +90,19 @@ class ParticulierWorkflowTest extends TestCase
         $this->assertDatabaseCount('candidatures', 1);
     }
 
+    public function test_unverified_particulier_cannot_apply(): void
+    {
+        $particulier = $this->makeParticulier([], ['email_verified_at' => null]);
+        $offre = $this->makeOffre();
+
+        $this->actingAs($particulier->utilisateur)
+            ->post(route('particulier.postuler'), ['offre_id' => $offre->id])
+            ->assertRedirect()
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseCount('candidatures', 0);
+    }
+
     public function test_accepted_candidature_shows_contact_company_button(): void
     {
         $particulier = $this->makeParticulier();
@@ -230,6 +243,19 @@ class ParticulierWorkflowTest extends TestCase
             ->assertSee('Licence Informatique')
             ->assertSee('Francais')
             ->assertSee('Lecture');
+    }
+
+    public function test_profile_page_keeps_cv_builder_draft_after_refreshes(): void
+    {
+        $particulier = $this->makeParticulier();
+
+        $this->actingAs($particulier->utilisateur)
+            ->get(route('particulier.profil'))
+            ->assertOk()
+            ->assertSee('data-cv-builder-form', false)
+            ->assertSee('jobconnect:cv-builder:'.$particulier->id, false)
+            ->assertSee('restoreCvDraft', false)
+            ->assertSee('saveCvDraft', false);
     }
 
     public function test_particulier_matching_and_suggestions_pages_are_available(): void

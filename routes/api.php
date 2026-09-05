@@ -21,6 +21,8 @@ Route::get('/offres/{id}', [OffreController::class, 'show']);
 Route::middleware(['auth:sanctum', 'not_blocked', 'throttle:120,1'])->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/email/verification-notification', [AuthController::class, 'resendVerificationEmail'])
+        ->middleware('throttle:3,1');
 
     // Notifications
     Route::get('/notifications',              [NotificationController::class, 'index']);
@@ -55,6 +57,7 @@ Route::middleware(['auth:sanctum', 'not_blocked', 'throttle:120,1'])->group(func
         Route::get('/statistiques',                    [AdminController::class, 'consulterStatistiques']);
         Route::get('/entreprises',                     [AdminController::class, 'gererEntreprise']);
         Route::patch('/entreprises/{id}/valider',      [AdminController::class, 'validerEntreprise']);
+        Route::patch('/entreprises/{id}/refuser',      [AdminController::class, 'refuserEntreprise']);
         Route::patch('/utilisateurs/{id}/bloquer',     [AdminController::class, 'bloquerUtilisateur']);
         Route::patch('/utilisateurs/{id}/debloquer',   [AdminController::class, 'debloquerUtilisateur']);
         Route::post('/notifications',                  [NotificationController::class, 'envoyer']);

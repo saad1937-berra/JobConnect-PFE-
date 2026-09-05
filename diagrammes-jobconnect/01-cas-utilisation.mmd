@@ -1,0 +1,58 @@
+flowchart LR
+    Visiteur([Visiteur])
+    Candidat([Candidat])
+    Entreprise([Entreprise])
+    Admin([Administrateur])
+
+    subgraph Systeme["Systeme JobConnect"]
+        UC1["Consulter les offres"]
+        UC2["Creer un compte"]
+        UC3["Se connecter"]
+        UC4["Completer le profil candidat"]
+        UC5["Ajouter competences"]
+        UC6["Deposer ou generer CV"]
+        UC7["Postuler a une offre"]
+        UC8["Suivre candidatures"]
+        UC9["Consulter suggestions et matching"]
+        UC10["Completer profil entreprise"]
+        UC11["Publier et gerer offres"]
+        UC12["Consulter candidatures"]
+        UC13["Changer statut candidature"]
+        UC14["Telecharger CV candidat"]
+        UC15["Echanger par messagerie controlee"]
+        UC16["Valider ou refuser entreprises"]
+        UC17["Gerer utilisateurs"]
+        UC18["Gerer categories et competences"]
+        UC19["Traiter signalements"]
+        UC20["Consulter tableaux de bord"]
+    end
+
+    Visiteur --> UC1
+    Visiteur --> UC2
+    Visiteur --> UC3
+
+    Candidat --> UC3
+    Candidat --> UC4
+    Candidat --> UC5
+    Candidat --> UC6
+    Candidat --> UC7
+    Candidat --> UC8
+    Candidat --> UC9
+    Candidat --> UC15
+
+    Entreprise --> UC3
+    Entreprise --> UC10
+    Entreprise --> UC11
+    Entreprise --> UC12
+    Entreprise --> UC13
+    Entreprise --> UC14
+    Entreprise --> UC9
+    Entreprise --> UC15
+    Entreprise --> UC20
+
+    Admin --> UC16
+    Admin --> UC17
+    Admin --> UC18
+    Admin --> UC19
+    Admin --> UC20
+
