@@ -10,6 +10,7 @@ use App\Models\Report;
 use App\Models\Utilisateur;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MessageController extends Controller
 {
@@ -114,7 +115,7 @@ class MessageController extends Controller
     public function report(Request $request, $id)
     {
         $request->validate([
-            'reason' => 'nullable|string|max:2000',
+            'reason' => 'required|string|max:2000',
         ]);
 
         $user = auth()->user();
@@ -128,29 +129,33 @@ class MessageController extends Controller
             return back()->with('error', 'Aucun administrateur disponible pour recevoir le signalement.');
         }
 
-        $other = $conversation->otherParticipant($user);
-        $adminConversation = Conversation::between($user, $admin);
-        $reason = filled($request->reason) ? $request->reason : 'Aucun motif detaille.';
+        $adminConversation = DB::transaction(function () use ($conversation, $user, $admin, $request) {
+            $other = $conversation->otherParticipant($user);
+            $adminConversation = Conversation::between($user, $admin);
+            $reason = filled($request->reason) ? $request->reason : 'Aucun motif detaille.';
 
-        $report = Report::create([
-            'conversation_id' => $conversation->id,
-            'reporter_id' => $user->id,
-            'reported_id' => $other->id,
-            'reason' => $reason,
-        ]);
+            $report = Report::create([
+                'conversation_id' => $conversation->id,
+                'reporter_id' => $user->id,
+                'reported_id' => $other->id,
+                'reason' => $reason,
+                'status' => 'nouveau',
+            ]);
 
-        Message::create([
-            'conversation_id' => $adminConversation->id,
-            'sender_id' => $user->id,
-            'body' => "Signalement #{$report->id} de conversation #{$conversation->id}\nUtilisateur signale : {$other?->prenom} {$other?->nom} ({$other?->email})\nMotif : {$reason}",
-        ]);
+            Message::create([
+                'conversation_id' => $adminConversation->id,
+                'sender_id' => $user->id,
+                'body' => "Conversation #{$conversation->id}\nUtilisateur signalé : {$other->prenom} {$other->nom}\n" . $report->followUpMessage(),
+            ]);
 
-        $adminConversation->update(['last_message_at' => now()]);
-        NotificationService::envoyer(
-            $admin->id,
-            'signalement',
-            "Nouveau signalement #{$report->id} envoye par {$user->prenom} {$user->nom}."
-        );
+            $adminConversation->update(['last_message_at' => now()]);
+            NotificationService::envoyer(
+                $admin->id,
+                'signalement',
+                $report->followUpMessage()
+            );
+            return $adminConversation;
+        });
 
         return redirect()
             ->route('messages.show', $adminConversation->id)

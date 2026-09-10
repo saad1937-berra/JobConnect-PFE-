@@ -129,6 +129,11 @@ class MessageAuthorizationTest extends TestCase
         $conversation = Conversation::between($entreprise, $particulier);
 
         $this->actingAs($entreprise)
+            ->post(route('messages.report', $conversation->id), ['reason' => '   '])
+            ->assertSessionHasErrors('reason');
+        $this->assertDatabaseCount('reports', 0);
+
+        $this->actingAs($entreprise)
             ->post(route('messages.report', $conversation->id), ['reason' => 'Messages insistants'])
             ->assertRedirect();
 

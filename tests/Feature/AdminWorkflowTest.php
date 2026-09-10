@@ -181,6 +181,31 @@ class AdminWorkflowTest extends TestCase
             'admin_note' => 'Avertissement envoye',
         ]);
         $this->assertNotNull($report->fresh()->resolved_at);
+        $this->assertDatabaseHas('messages', [
+            'sender_id' => $admin->id,
+            'body' => $report->fresh()->followUpMessage(),
+        ]);
+        $this->assertDatabaseHas('notifications', [
+            'utilisateur_id' => $entreprise->utilisateur_id,
+            'message' => $report->fresh()->followUpMessage(),
+        ]);
+
+        $count = \App\Models\Message::count();
+        $this->patch(route('admin.signalements.update', $report->id), [
+            'status' => 'traite', 'admin_note' => 'Avertissement envoye',
+        ])->assertRedirect();
+        $this->assertDatabaseCount('messages', $count);
+
+        $this->patch(route('admin.signalements.update', $report->id), [
+            'status' => 'rejete', 'admin_note' => '',
+        ])->assertSessionHasErrors('admin_note');
+        $this->assertSame('traite', $report->fresh()->status);
+
+        $this->patch(route('admin.signalements.update', $report->id), [
+            'status' => 'en_cours', 'admin_note' => 'Nouvel examen',
+        ])->assertRedirect();
+        $this->assertNull($report->fresh()->resolved_at);
+        $this->assertDatabaseHas('messages', ['body' => $report->fresh()->followUpMessage()]);
     }
 
     public function test_admin_blocking_user_revokes_tokens(): void

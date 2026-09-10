@@ -60,11 +60,16 @@
                 <h1>{{ $title }}</h1>
                 <p>{{ $subtitle }}</p>
                 @if($canReport)
-                    <details class="chat-report">
+                    <details class="chat-report" @if($errors->has('reason')) open @endif>
                         <summary><i class="fas fa-flag"></i> Signaler cette conversation a l'admin</summary>
                         <form method="POST" action="{{ route('messages.report', $conversation->id) }}">
                             @csrf
-                            <textarea name="reason" placeholder="Expliquez rapidement le probleme...">{{ old('reason') }}</textarea>
+                            <div style="display:grid;gap:.4rem;flex:1;">
+                                <label for="report-reason">Motif du signalement (obligatoire)</label>
+                                <textarea id="report-reason" name="reason" rows="3" maxlength="2000" required placeholder="Décrivez le problème : propos abusifs, spam, comportement inapproprié…">{{ old('reason') }}</textarea>
+                                @error('reason')<p role="alert" style="color:#b91c1c;">{{ $message }}</p>@enderror
+                                <small>L’administrateur examinera votre demande. Le statut et le traitement vous seront communiqués dans la messagerie.</small>
+                            </div>
                             <button type="submit">Signaler</button>
                         </form>
                     </details>

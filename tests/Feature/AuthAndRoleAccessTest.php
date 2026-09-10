@@ -14,12 +14,62 @@ class AuthAndRoleAccessTest extends TestCase
     use RefreshDatabase;
     use CreatesTestData;
 
+    public function test_login_page_is_available_to_guests_without_caching(): void
+    {
+        $response = $this->get(route('login'))->assertOk()->assertSee('Se connecter');
+        $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
+        $response->assertHeader('Pragma', 'no-cache');
+    }
+
+    public function test_authenticated_users_cannot_view_or_submit_login(): void
+    {
+        foreach (['particulier', 'entreprise', 'admin'] as $role) {
+            $user = $this->makeUser($role);
+            $this->actingAs($user)->get(route('login'))->assertRedirect(route('home'));
+            $this->post(route('login'), [
+                'email' => 'other@example.test', 'pass' => 'incorrect',
+            ])->assertRedirect(route('home'));
+            $this->assertAuthenticatedAs($user);
+        }
+    }
+
+    public function test_login_is_available_again_after_logout(): void
+    {
+        $this->actingAs($this->makeUser('particulier'))
+            ->post(route('logout'))->assertRedirect(route('home'));
+        $this->assertGuest();
+        $this->get(route('login'))->assertOk();
+    }
+
     public function test_guest_is_redirected_from_protected_pages(): void
     {
         $this->get(route('particulier.profil'))->assertRedirect(route('login'));
         $this->get(route('entreprise.dashboard'))->assertRedirect(route('login'));
         $this->get(route('admin.dashboard'))->assertRedirect(route('login'));
         $this->get(route('messages.index'))->assertRedirect(route('login'));
+    }
+
+    public function test_logout_prevents_returning_to_protected_pages_for_every_role(): void
+    {
+        $accounts = [
+            [$this->makeParticulier()->utilisateur, 'particulier.profil'],
+            [$this->makeEntreprise()->utilisateur, 'entreprise.dashboard'],
+            [$this->makeAdmin(), 'admin.dashboard'],
+        ];
+
+        foreach ($accounts as [$user, $page]) {
+            $response = $this->actingAs($user)->get(route($page))->assertOk();
+            $this->assertStringContainsString('no-store', $response->headers->get('Cache-Control'));
+            $response->assertSee("window.addEventListener('pageshow'", false);
+
+            $home = $this->get(route('home'))->assertOk();
+            $this->assertStringContainsString('no-store', $home->headers->get('Cache-Control'));
+
+            $this->post(route('logout'))->assertRedirect(route('home'));
+            $this->assertGuest();
+            $this->get(route($page))->assertRedirect(route('login'));
+            $this->get(route('home'))->assertOk()->assertSee('Connexion')->assertDontSee('Déconnexion');
+        }
     }
 
     public function test_registration_creates_particulier_profile(): void

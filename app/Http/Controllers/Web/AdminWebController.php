@@ -10,6 +10,10 @@ use App\Models\Candidature;
 use App\Models\Categorie;
 use App\Models\Competance;
 use App\Models\Report;
+use App\Models\Conversation;
+use App\Models\Message;
+use App\Services\NotificationService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class AdminWebController extends Controller
@@ -58,15 +62,30 @@ class AdminWebController extends Controller
     {
         $request->validate([
             'status' => 'required|in:nouveau,en_cours,traite,rejete',
-            'admin_note' => 'nullable|string|max:2000',
+            'admin_note' => 'required_if:status,traite,rejete|nullable|string|max:2000',
         ]);
 
-        $report = Report::findOrFail($id);
-        $report->update([
-            'status' => $request->status,
-            'admin_note' => $request->admin_note,
-            'resolved_at' => in_array($request->status, ['traite', 'rejete'], true) ? now() : null,
-        ]);
+        DB::transaction(function () use ($request, $id) {
+            $report = Report::lockForUpdate()->findOrFail($id);
+            $report->fill([
+                'status' => $request->status,
+                'admin_note' => $request->admin_note,
+            ]);
+            if (!$report->isDirty(['status', 'admin_note'])) {
+                return;
+            }
+            $report->resolved_at = in_array($request->status, ['traite', 'rejete'], true)
+                ? ($report->resolved_at ?? now()) : null;
+            $report->save();
+            $conversation = Conversation::between($report->reporter, $request->user());
+            Message::create([
+                'conversation_id' => $conversation->id,
+                'sender_id' => $request->user()->id,
+                'body' => $report->followUpMessage(),
+            ]);
+            $conversation->update(['last_message_at' => now()]);
+            NotificationService::envoyer($report->reporter_id, 'signalement', $report->followUpMessage());
+        });
 
         return back()->with('success', 'Signalement mis a jour.');
     }

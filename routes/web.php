@@ -16,8 +16,8 @@ use App\Http\Controllers\Web\MessageController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Auth
-Route::get('/login',    [AuthWebController::class, 'showLogin'])->name('login');
-Route::post('/login',   [AuthWebController::class, 'login'])->middleware('throttle:5,1');
+Route::get('/login',    [AuthWebController::class, 'showLogin'])->name('login')->middleware('guest');
+Route::post('/login',   [AuthWebController::class, 'login'])->middleware(['guest', 'throttle:5,1']);
 Route::get('/register', [AuthWebController::class, 'showRegister'])->name('register');
 Route::post('/register',[AuthWebController::class, 'register'])->middleware('throttle:5,1');
 Route::post('/logout',  [AuthWebController::class, 'logout'])->name('logout')->middleware('auth');
