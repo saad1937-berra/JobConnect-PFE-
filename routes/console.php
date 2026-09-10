@@ -2,6 +2,8 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use App\Models\Offre;
+use Illuminate\Support\Facades\Schedule;
 use App\Models\Cv;
 use App\Services\CvTextExtractor;
 
@@ -41,3 +43,16 @@ Artisan::command('cv:extract-text {--force : Reextraire meme si cv_text existe d
         $this->warn("CV non lisibles: {$failed}");
     }
 })->purpose('Extraire le texte des CV stockes pour le matching');
+
+Artisan::command('offres:expire', function () {
+    $count = Offre::where('statut', 'active')
+        ->whereNotNull('date_expiration')
+        ->whereDate('date_expiration', '<', today())
+        ->update([
+            'statut' => 'expiree',
+        ]);
+
+    $this->info("Offres expirées : {$count}");
+})->purpose('Marquer automatiquement les offres arrivées à expiration');
+
+Schedule::command('offres:expire')->daily();

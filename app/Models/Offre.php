@@ -61,13 +61,16 @@ class Offre extends Model
     {
         return $query
             ->where('statut', 'active')
+            ->where(function ($q) {
+                $q->whereNull('date_expiration')
+                ->orWhereDate('date_expiration', '>=', today());
+            })
             ->whereHas('entreprise', fn($q) => $q
                 ->where('statut_validation', Entreprise::STATUT_VALIDEE)
                 ->whereHas('utilisateur', fn($userQuery) => $userQuery
                     ->where('role', 'entreprise')
                     ->whereNotNull('email_verified_at')));
     }
-
     public function scopeByCategorie($query, $categorieId)
     {
         return $query->where('categorie_id', $categorieId);
