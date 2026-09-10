@@ -22,3 +22,10 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+*.pdf
+*.docx
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.zip

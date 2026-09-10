@@ -106,13 +106,14 @@ class MatchingService
             $particulier->load('cv');
         }
 
-        $text = $particulier->cv
+        $cv = $particulier->cv
             ->sortByDesc('created_at')
-            ->first()?->cv_text;
+            ->first(function ($cv) {
+                return is_string($cv->cv_text)
+                    && trim($cv->cv_text) !== '';
+            });
 
-        $text = is_string($text) ? trim($text) : '';
-
-        return $text !== '' ? $text : null;
+        return $cv ? trim($cv->cv_text) : null;
     }
 
     private static function scoreCompetencesDepuisCv(string $cvText, Offre $offre): array
